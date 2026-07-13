@@ -27,12 +27,12 @@ export function ProductCard({ product }: { product: Product }) {
         </span>
 
         <Link to="/produto/$slug" params={{ slug: product.slug }} className="no-underline">
-          <h3 className="line-clamp-2 text-base font-semibold text-foreground hover:text-primary">
+          <h3 className="line-clamp-2 text-lg font-semibold text-foreground hover:text-primary">
             {product.name}
           </h3>
         </Link>
 
-        <p className="line-clamp-2 text-sm text-muted-foreground">{product.shortDescription}</p>
+        <p className="line-clamp-2 text-base text-muted-foreground">{product.shortDescription}</p>
 
         <div className="mt-auto flex flex-col gap-3 pt-2">
           <div className="flex flex-wrap items-end justify-between gap-2">

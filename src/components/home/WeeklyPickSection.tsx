@@ -30,11 +30,11 @@ export function WeeklyPickSection() {
           </span>
 
           <Link to="/produto/$slug" params={{ slug: product.slug }} className="no-underline">
-            <h2 className="display-title text-2xl font-extrabold text-foreground sm:text-3xl">
+            <h2 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">
               {product.name}
             </h2>
           </Link>
-          <p className="text-base text-muted-foreground">{product.shortDescription}</p>
+          <p className="text-lg text-muted-foreground">{product.shortDescription}</p>
 
           <div className="flex flex-wrap items-baseline gap-3">
             <span className="text-2xl font-bold text-foreground">{formatPrice(product.currentPrice)}</span>

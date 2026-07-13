@@ -13,7 +13,7 @@ export const Route = createFileRoute('/politica-de-privacidade')({
 function PoliticaDePrivacidadePage() {
   return (
     <div className="page-wrap max-w-2xl py-14">
-      <h1 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">
+      <h1 className="display-title text-4xl font-extrabold text-foreground sm:text-5xl">
         Política de Privacidade
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">Última atualização: julho de 2026</p>

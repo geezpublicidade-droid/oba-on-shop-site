@@ -56,7 +56,7 @@ function VendaNaObaPage() {
           Em breve
         </span>
 
-        <h1 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">
+        <h1 className="display-title text-4xl font-extrabold text-foreground sm:text-5xl">
           Venda seus produtos na Oba On Shop
         </h1>
         <p className="max-w-xl text-base text-muted-foreground sm:text-lg">

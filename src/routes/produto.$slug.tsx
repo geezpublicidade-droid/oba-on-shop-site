@@ -73,8 +73,8 @@ function ProductPage() {
           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {product.subcategory}
           </span>
-          <h1 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">{product.name}</h1>
-          <p className="text-base text-muted-foreground">{product.shortDescription}</p>
+          <h1 className="display-title text-4xl font-extrabold text-foreground sm:text-5xl">{product.name}</h1>
+          <p className="text-lg text-muted-foreground">{product.shortDescription}</p>
 
           <div className="flex flex-wrap items-baseline gap-3">
             <span className="text-3xl font-bold text-foreground">{formatPrice(product.currentPrice)}</span>

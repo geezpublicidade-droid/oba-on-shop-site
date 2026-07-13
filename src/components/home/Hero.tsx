@@ -21,11 +21,11 @@ export function Hero() {
             Curadoria Oba On Shop
           </span>
 
-          <h1 className="display-title max-w-3xl text-3xl font-extrabold leading-tight text-foreground sm:text-5xl">
+          <h1 className="display-title max-w-3xl text-4xl font-extrabold leading-tight text-foreground sm:text-6xl">
             Tudo que facilita sua vida e seu negócio, em um só lugar.
           </h1>
 
-          <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
+          <p className="max-w-xl text-lg text-muted-foreground sm:text-xl">
             Produtos, ofertas, soluções digitais e bons achados selecionados para você.
           </p>
 

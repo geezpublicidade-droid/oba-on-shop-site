@@ -14,7 +14,7 @@ export const Route = createFileRoute('/aviso-de-afiliados')({
 function AvisoDeAfiliadosPage() {
   return (
     <div className="page-wrap max-w-2xl py-14">
-      <h1 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">
+      <h1 className="display-title text-4xl font-extrabold text-foreground sm:text-5xl">
         Aviso de Afiliados
       </h1>
       <div className="mt-6">

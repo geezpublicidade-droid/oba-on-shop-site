@@ -16,7 +16,7 @@ export const Route = createFileRoute('/sobre')({
 function SobrePage() {
   return (
     <div className="page-wrap max-w-2xl py-14">
-      <h1 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">
+      <h1 className="display-title text-4xl font-extrabold text-foreground sm:text-5xl">
         Sobre a Oba On Shop
       </h1>
       <div className="prose prose-neutral mt-6 max-w-none text-base text-muted-foreground">

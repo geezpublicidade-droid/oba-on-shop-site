@@ -33,11 +33,11 @@ export function DepartmentCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent sm:bg-gradient-to-r sm:from-black/75 sm:via-black/25 sm:to-transparent" />
         <div className="relative sm:max-w-xs">
-          <h3 className="text-shadow-soft text-lg font-bold text-white sm:text-2xl">{title}</h3>
-          <p className="text-shadow-soft mt-1.5 text-sm text-white/90">{description}</p>
-          <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
+          <h3 className="text-shadow-soft text-2xl font-bold text-white sm:text-3xl">{title}</h3>
+          <p className="text-shadow-soft mt-1.5 text-base text-white/90">{description}</p>
+          <span className="mt-3 inline-flex items-center gap-1.5 text-base font-semibold text-white">
             {buttonLabel}
-            <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+            <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" aria-hidden="true" />
           </span>
         </div>
       </Link>

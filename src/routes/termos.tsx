@@ -13,7 +13,7 @@ export const Route = createFileRoute('/termos')({
 function TermosPage() {
   return (
     <div className="page-wrap max-w-2xl py-14">
-      <h1 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">Termos de Uso</h1>
+      <h1 className="display-title text-4xl font-extrabold text-foreground sm:text-5xl">Termos de Uso</h1>
       <p className="mt-2 text-sm text-muted-foreground">Última atualização: julho de 2026</p>
 
       <div className="prose prose-neutral mt-6 max-w-none space-y-5 text-base text-muted-foreground">
