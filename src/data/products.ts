@@ -21,6 +21,18 @@ export type ProductPlatform =
   | 'Hotmart'
   | 'Loja parceira'
 
+export interface StoryItem {
+  type: 'image' | 'video'
+  src: string
+  /** Legenda curta exibida sobre a mídia. */
+  caption?: string
+}
+
+export interface ProductSpec {
+  label: string
+  value: string
+}
+
 export interface Product {
   id: string
   slug: string
@@ -30,6 +42,16 @@ export interface Product {
   benefits: string[]
   image: string
   gallery: string[]
+  /**
+   * Mídias em formato vertical (estilo Stories/Status) para reforçar a divulgação do produto.
+   * Aceita imagens e vídeos curtos (demonstração, unboxing, depoimento). Vazio até que
+   * fotos/vídeos reais do produto sejam adicionados — a interface já está pronta para receber.
+   */
+  stories: StoryItem[]
+  /** Ficha técnica exibida em produtos físicos (dimensões, material, voltagem etc.). */
+  specs?: ProductSpec[]
+  /** Passos customizados de "como funciona" para este produto. Se ausente, usa o padrão do tipo. */
+  howItWorks?: string[]
   category: ProductCategory
   subcategory: string
   type: ProductType
@@ -58,6 +80,13 @@ export const products: Product[] = [
     benefits: ['Fácil de instalar', 'Baixo consumo de energia', 'Design compacto e moderno'],
     image: 'placeholder:home',
     gallery: [],
+    stories: [],
+    specs: [
+      { label: 'Material', value: 'ABS resistente' },
+      { label: 'Alimentação', value: 'USB ou 3 pilhas AA' },
+      { label: 'Dimensões', value: '18 x 12 x 12 cm' },
+      { label: 'Cor', value: 'Branco fosco' },
+    ],
     category: 'achados',
     subcategory: 'casa',
     type: 'physical',
@@ -83,6 +112,7 @@ export const products: Product[] = [
     benefits: ['Empilhável', 'Resistente ao uso diário', 'Fácil de limpar'],
     image: 'placeholder:home',
     gallery: [],
+    stories: [],
     category: 'achados',
     subcategory: 'casa',
     type: 'physical',
@@ -106,6 +136,7 @@ export const products: Product[] = [
     benefits: ['Ângulo ajustável', 'Compacto para levar na bolsa', 'Compatível com a maioria dos aparelhos'],
     image: 'placeholder:tech',
     gallery: [],
+    stories: [],
     category: 'achados',
     subcategory: 'tecnologia',
     type: 'physical',
@@ -131,6 +162,7 @@ export const products: Product[] = [
     benefits: ['Conjunto completo', 'Material resistente', 'Fácil de guardar'],
     image: 'placeholder:kitchen',
     gallery: [],
+    stories: [],
     category: 'achados',
     subcategory: 'cozinha',
     type: 'physical',
@@ -154,6 +186,7 @@ export const products: Product[] = [
     benefits: ['Reduz a bagunça de cabos', 'Design discreto', 'Fácil de montar'],
     image: 'placeholder:office',
     gallery: [],
+    stories: [],
     category: 'achados',
     subcategory: 'home office',
     type: 'physical',
@@ -179,6 +212,12 @@ export const products: Product[] = [
     benefits: ['Linguagem simples e direta', 'Aplicável a qualquer segmento', 'Acesso imediato após a compra'],
     image: 'placeholder:digital',
     gallery: [],
+    stories: [],
+    howItWorks: [
+      'Compre com segurança na plataforma parceira',
+      'Receba o acesso por e-mail na hora',
+      'Baixe o material e comece a aplicar',
+    ],
     category: 'digital',
     subcategory: 'e-books',
     type: 'digital',
@@ -202,6 +241,7 @@ export const products: Product[] = [
     benefits: ['Aulas em vídeo objetivas', 'Exemplos práticos', 'Certificado de conclusão'],
     image: 'placeholder:digital',
     gallery: [],
+    stories: [],
     category: 'digital',
     subcategory: 'cursos',
     type: 'digital',
@@ -227,6 +267,7 @@ export const products: Product[] = [
     benefits: ['Simples de configurar', 'Ideal para quem está começando', 'Suporte via chat'],
     image: 'placeholder:business',
     gallery: [],
+    stories: [],
     category: 'negocios',
     subcategory: 'ferramentas',
     type: 'business',
@@ -266,4 +307,17 @@ export function getRelatedProducts(product: Product, limit = 4): Product[] {
   return getActiveProducts()
     .filter((item) => item.id !== product.id && item.category === product.category)
     .slice(0, limit)
+}
+
+const DEFAULT_HOW_IT_WORKS: Record<ProductType, string[]> = {
+  physical: ['Escolha o produto', 'Compre com segurança na loja parceira', 'Receba no conforto da sua casa'],
+  digital: ['Compre com segurança na loja parceira', 'Receba o acesso por e-mail', 'Comece a usar na hora'],
+  business: ['Escolha a solução ideal', 'Contrate direto com o parceiro', 'Implemente no seu negócio'],
+  service: ['Escolha o serviço', 'Combine os detalhes com o parceiro', 'Aproveite a solução'],
+}
+
+export function getHowItWorks(product: Product): string[] {
+  return product.howItWorks && product.howItWorks.length > 0
+    ? product.howItWorks
+    : DEFAULT_HOW_IT_WORKS[product.type]
 }

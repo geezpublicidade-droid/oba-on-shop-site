@@ -19,7 +19,7 @@ export function NewsletterSection() {
     <section className="page-wrap py-14">
       <div className="oba-card mx-auto flex max-w-2xl flex-col items-center gap-5 px-6 py-12 text-center sm:px-10">
         <span className="gradient-oba-hero flex size-12 items-center justify-center rounded-2xl text-white">
-          <Mail className="size-6" aria-hidden="true" />
+          <Mail className="icon-shadow-soft size-6" aria-hidden="true" />
         </span>
         <SectionHeader
           title="Receba novidades e ofertas da Oba"

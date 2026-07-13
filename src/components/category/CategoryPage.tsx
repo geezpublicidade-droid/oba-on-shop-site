@@ -87,9 +87,13 @@ export function CategoryPage({
         className="oba-shell relative overflow-hidden rounded-3xl px-6 py-10 text-white sm:px-10 sm:py-14"
         style={{ background: meta.banner }}
       >
-        <p className="text-xs font-bold uppercase tracking-widest text-white/80">{meta.kicker}</p>
-        <h1 className="display-title mt-2 text-3xl font-extrabold sm:text-4xl">{meta.title}</h1>
-        <p className="mt-3 max-w-xl text-white/90">{meta.description}</p>
+        <p className="text-shadow-soft text-xs font-bold uppercase tracking-widest text-white/90">
+          {meta.kicker}
+        </p>
+        <h1 className="text-shadow-soft display-title mt-2 text-3xl font-extrabold sm:text-4xl">
+          {meta.title}
+        </h1>
+        <p className="text-shadow-soft mt-3 max-w-xl text-white/95">{meta.description}</p>
       </div>
 
       <div className="mt-8 flex flex-col gap-4">

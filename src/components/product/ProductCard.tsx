@@ -35,7 +35,7 @@ export function ProductCard({ product }: { product: Product }) {
         <p className="line-clamp-2 text-sm text-muted-foreground">{product.shortDescription}</p>
 
         <div className="mt-auto flex flex-col gap-3 pt-2">
-          <div className="flex items-end justify-between gap-2">
+          <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-bold text-foreground">{formatPrice(product.currentPrice)}</span>

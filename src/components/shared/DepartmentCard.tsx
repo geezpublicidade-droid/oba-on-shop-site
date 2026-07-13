@@ -24,7 +24,7 @@ export function DepartmentCard({
         className="flex size-12 items-center justify-center rounded-2xl text-white"
         style={{ background: accent }}
       >
-        <Icon className="size-6" aria-hidden="true" />
+        <Icon className="icon-shadow-soft size-6" aria-hidden="true" />
       </span>
       <div>
         <h3 className="text-lg font-bold text-foreground">{title}</h3>

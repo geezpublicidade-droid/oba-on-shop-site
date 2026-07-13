@@ -4,9 +4,9 @@ import { Badge } from '#/components/ui/badge'
 const BADGE_STYLES: Record<ProductBadgeType, string> = {
   'Achado Oba': 'bg-primary text-primary-foreground',
   Oferta: 'bg-accent text-accent-foreground',
-  'Produto digital': 'bg-[#9b5de5] text-white',
+  'Produto digital': 'bg-[#6d28d9] text-white',
   'Para negócios': 'bg-secondary text-secondary-foreground',
-  Recomendado: 'bg-[#ff6fa5] text-white',
+  Recomendado: 'bg-[#c81d63] text-white',
   'Mais procurado': 'bg-primary text-primary-foreground',
   Novo: 'bg-foreground text-background',
 }

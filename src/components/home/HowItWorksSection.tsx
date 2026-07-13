@@ -28,7 +28,7 @@ export function HowItWorksSection() {
         {STEPS.map((step) => (
           <div key={step.title} className="oba-card flex flex-col items-center gap-3 px-6 py-8 text-center">
             <span className="gradient-oba-hero flex size-12 items-center justify-center rounded-2xl text-white">
-              <step.icon className="size-6" aria-hidden="true" />
+              <step.icon className="icon-shadow-soft size-6" aria-hidden="true" />
             </span>
             <h3 className="text-base font-bold text-foreground">{step.title}</h3>
             <p className="text-sm text-muted-foreground">{step.description}</p>

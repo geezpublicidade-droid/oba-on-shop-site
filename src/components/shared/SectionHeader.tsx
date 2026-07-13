@@ -17,18 +17,22 @@ export function SectionHeader({
     <div className={`max-w-2xl ${align === 'center' ? 'mx-auto text-center' : ''}`}>
       {kicker && (
         <p
-          className={`island-kicker text-xs font-bold uppercase tracking-widest ${isLight ? 'text-white/85' : 'text-primary'}`}
+          className={`island-kicker text-xs font-bold uppercase tracking-widest ${isLight ? 'text-shadow-soft text-white/90' : 'text-primary'}`}
         >
           {kicker}
         </p>
       )}
       <h2
-        className={`display-title mt-2 text-2xl font-bold sm:text-3xl ${isLight ? 'text-white' : 'text-foreground'}`}
+        className={`display-title mt-2 text-2xl font-bold sm:text-3xl ${isLight ? 'text-shadow-soft text-white' : 'text-foreground'}`}
       >
         {title}
       </h2>
       {description && (
-        <p className={`mt-3 text-base ${isLight ? 'text-white/90' : 'text-muted-foreground'}`}>{description}</p>
+        <p
+          className={`mt-3 text-base ${isLight ? 'text-shadow-soft text-white/95' : 'text-muted-foreground'}`}
+        >
+          {description}
+        </p>
       )}
     </div>
   )

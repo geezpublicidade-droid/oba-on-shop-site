@@ -1,12 +1,16 @@
 import { createFileRoute, Link, notFound } from '@tanstack/react-router'
-import { ArrowLeft } from 'lucide-react'
-import { getProductBySlug, getRelatedProducts } from '#/data/products'
-import { ProductImage } from '#/components/product/ProductImage'
-import { ProductBadge } from '#/components/product/ProductBadge'
+import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { getHowItWorks, getProductBySlug, getRelatedProducts } from '#/data/products'
+import { StoryViewer } from '#/components/product/StoryViewer'
 import { OfferButton } from '#/components/product/OfferButton'
 import { AffiliateDisclosure } from '#/components/product/AffiliateDisclosure'
 import { ProductGrid } from '#/components/product/ProductGrid'
+import { ProductHowItWorks } from '#/components/product/ProductHowItWorks'
+import { ProductSpecsTable } from '#/components/product/ProductSpecsTable'
+import { TrustBadges } from '#/components/product/TrustBadges'
+import { StickyBuyBar } from '#/components/product/StickyBuyBar'
 import { SectionHeader } from '#/components/shared/SectionHeader'
+import { buildProductJsonLd } from '#/lib/seo'
 
 function formatPrice(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -23,6 +27,9 @@ export const Route = createFileRoute('/produto/$slug')({
       ? [
           { title: `${loaderData.product.name} | Oba On Shop` },
           { name: 'description', content: loaderData.product.shortDescription },
+          { property: 'og:title', content: loaderData.product.name },
+          { property: 'og:description', content: loaderData.product.shortDescription },
+          { property: 'og:type', content: 'product' },
         ]
       : [],
   }),
@@ -40,9 +47,16 @@ export const Route = createFileRoute('/produto/$slug')({
 
 function ProductPage() {
   const { product, related } = Route.useLoaderData()
+  const howItWorks = getHowItWorks(product)
+  const jsonLd = buildProductJsonLd(product)
 
   return (
-    <div className="page-wrap py-10">
+    <div className="page-wrap pb-16 pt-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
+      />
+
       <button
         type="button"
         onClick={() => window.history.back()}
@@ -53,19 +67,16 @@ function ProductPage() {
       </button>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <div className="relative aspect-square overflow-hidden rounded-3xl">
-          <ProductImage image={product.image} alt={product.name} className="h-full w-full" />
-          <ProductBadge badge={product.badge} className="absolute left-4 top-4" />
-        </div>
+        <StoryViewer items={product.stories} fallbackImage={product.image} alt={product.name} badge={product.badge} />
 
         <div className="flex flex-col gap-4">
           <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             {product.subcategory}
           </span>
-          <h1 className="display-title text-3xl font-extrabold text-foreground">{product.name}</h1>
+          <h1 className="display-title text-3xl font-extrabold text-foreground sm:text-4xl">{product.name}</h1>
           <p className="text-base text-muted-foreground">{product.shortDescription}</p>
 
-          <div className="flex items-baseline gap-3">
+          <div className="flex flex-wrap items-baseline gap-3">
             <span className="text-3xl font-bold text-foreground">{formatPrice(product.currentPrice)}</span>
             {product.oldPrice && (
               <span className="text-base text-muted-foreground line-through">
@@ -81,35 +92,48 @@ function ProductPage() {
 
           <p className="text-sm font-medium text-muted-foreground">Vendido por {product.platform}</p>
 
-          <div className="oba-card flex flex-col gap-3 p-5">
+          {product.benefits.length > 0 && (
+            <ul className="flex flex-col gap-2">
+              {product.benefits.map((benefit) => (
+                <li key={benefit} className="flex items-start gap-2 text-sm text-foreground">
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                  {benefit}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="oba-card hidden flex-col gap-3 p-5 sm:flex">
             <OfferButton product={product} fullLabel className="w-full" />
             <p className="text-xs text-muted-foreground">
               Você será direcionado para a plataforma parceira para concluir a compra.
             </p>
             <AffiliateDisclosure compact />
           </div>
-
-          {product.benefits.length > 0 && (
-            <div>
-              <h2 className="text-sm font-semibold text-foreground">Benefícios</h2>
-              <ul className="mt-2 space-y-1.5">
-                {product.benefits.map((benefit) => (
-                  <li key={benefit} className="text-sm text-muted-foreground">
-                    • {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
       </div>
 
-      <div className="mt-10 max-w-3xl">
-        <h2 className="text-lg font-semibold text-foreground">Sobre o produto</h2>
-        <p className="mt-2 text-base text-muted-foreground">{product.description}</p>
-        <p className="mt-4 text-xs text-muted-foreground">
-          Preços, estoque, entrega, pagamento e condições são definidos pela plataforma responsável.
-        </p>
+      <div className="mt-10">
+        <TrustBadges />
+      </div>
+
+      <div className="mt-12">
+        <ProductHowItWorks steps={howItWorks} />
+      </div>
+
+      <div className="mt-12 grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <h2 className="text-lg font-semibold text-foreground">Sobre o produto</h2>
+          <p className="mt-2 text-base text-muted-foreground">{product.description}</p>
+          <p className="mt-4 text-xs text-muted-foreground">
+            Preços, estoque, entrega, pagamento e condições são definidos pela plataforma responsável.
+          </p>
+        </div>
+        {product.specs && product.specs.length > 0 && (
+          <div>
+            <ProductSpecsTable specs={product.specs} />
+          </div>
+        )}
       </div>
 
       {related.length > 0 && (
@@ -120,6 +144,8 @@ function ProductPage() {
           </div>
         </div>
       )}
+
+      <StickyBuyBar product={product} />
     </div>
   )
 }
