@@ -21,7 +21,7 @@ export function OfferButton({
   }
 
   return (
-    <Button asChild className={`rounded-full ${className ?? ''}`}>
+    <Button asChild className={`rounded-full ${fullLabel ? 'btn-glow' : ''} ${className ?? ''}`}>
       <a
         href={product.affiliateUrl}
         target="_blank"

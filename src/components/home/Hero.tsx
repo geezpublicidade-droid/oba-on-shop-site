@@ -30,7 +30,7 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button asChild size="lg" className="rounded-full">
+            <Button asChild size="lg" className="btn-glow rounded-full">
               <Link to="/departamentos">
                 <ShoppingBag className="size-4" aria-hidden="true" />
                 Explorar o shopping

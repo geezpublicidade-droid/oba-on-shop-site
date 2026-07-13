@@ -1,5 +1,6 @@
 import { Briefcase, Sparkles, Tag, Search } from 'lucide-react'
 import { DepartmentCard } from '#/components/shared/DepartmentCard'
+import achadosImage from '#/assets/departments/achados.png'
 
 export const DEPARTMENTS = [
   {
@@ -9,6 +10,7 @@ export const DEPARTMENTS = [
     buttonLabel: 'Ver achados',
     href: '/achados' as const,
     accent: 'linear-gradient(135deg, var(--oba-orange), var(--oba-amber))',
+    image: achadosImage,
   },
   {
     icon: Tag,

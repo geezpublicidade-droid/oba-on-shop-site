@@ -65,6 +65,8 @@ export interface Product {
   badge: ProductBadge
   featured: boolean
   offer: boolean
+  /** Destaque "Achado da Semana" — apenas um produto deve estar marcado por vez. */
+  weeklyPick?: boolean
   active: boolean
   createdAt: string
 }
@@ -81,6 +83,10 @@ export function getFeaturedProducts(): Product[] {
 
 export function getOfferProducts(): Product[] {
   return getActiveProducts().filter((product) => product.offer)
+}
+
+export function getWeeklyPick(): Product | undefined {
+  return getActiveProducts().find((product) => product.weeklyPick)
 }
 
 export function getProductsByCategory(category: ProductCategory): Product[] {

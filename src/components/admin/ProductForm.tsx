@@ -60,6 +60,7 @@ function blankProduct(): Product {
     badge: 'Achado Oba',
     featured: false,
     offer: false,
+    weeklyPick: false,
     active: true,
     createdAt: new Date().toISOString().slice(0, 10),
   }
@@ -362,7 +363,18 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
         <Checkbox label="Produto ativo (visível no site)" checked={product.active} onChange={(v) => update('active', v)} />
         <Checkbox label="Destacar na home" checked={product.featured} onChange={(v) => update('featured', v)} />
         <Checkbox label="Marcar como oferta" checked={product.offer} onChange={(v) => update('offer', v)} />
+        <Checkbox
+          label="Achado da semana"
+          checked={product.weeklyPick ?? false}
+          onChange={(v) => update('weeklyPick', v)}
+        />
       </section>
+      {product.weeklyPick && (
+        <p className="-mt-4 text-xs text-muted-foreground">
+          Marcar este produto como Achado da Semana remove automaticamente o destaque de qualquer outro
+          produto ao salvar.
+        </p>
+      )}
 
       <div className="flex justify-end gap-3">
         <Button type="button" variant="outline" onClick={() => navigate({ to: '/admin' })}>

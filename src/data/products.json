@@ -176,6 +176,7 @@
     "badge": "Recomendado",
     "featured": true,
     "offer": true,
+    "weeklyPick": true,
     "active": true,
     "createdAt": "2026-06-25"
   },

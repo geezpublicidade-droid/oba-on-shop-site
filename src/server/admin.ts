@@ -86,6 +86,13 @@ export const adminSaveProduct = createServerFn({ method: 'POST' })
       products[index] = data.product
     }
 
+    // Apenas um produto pode ser o "Achado da Semana" por vez.
+    if (data.product.weeklyPick) {
+      for (const item of products) {
+        if (item.id !== data.product.id) item.weeklyPick = false
+      }
+    }
+
     await writeProductsFile(products)
     return { success: true as const }
   })

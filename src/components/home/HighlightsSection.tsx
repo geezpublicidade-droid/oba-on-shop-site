@@ -27,11 +27,11 @@ export function HighlightsSection() {
             to={highlight.href}
             className="flex shrink-0 flex-col items-center gap-2 text-center no-underline"
           >
-            <span className="oba-card flex size-16 items-center justify-center overflow-hidden rounded-full p-0.5 sm:size-20">
+            <span className="block aspect-square size-16 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-[0_2px_10px_rgba(58,31,15,0.14)] sm:size-20">
               <img
                 src={highlight.image}
                 alt=""
-                className="size-full rounded-full object-cover"
+                className="block aspect-square size-full rounded-full object-cover"
                 width={80}
                 height={80}
                 loading="lazy"
