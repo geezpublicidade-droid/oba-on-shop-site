@@ -24,16 +24,16 @@ export function DepartmentCard({
     return (
       <Link
         to={href}
-        className="oba-card group relative flex min-h-[260px] flex-col justify-end overflow-hidden p-6 no-underline sm:min-h-[280px] lg:min-h-[300px]"
+        className="oba-card group relative flex aspect-[4/3] flex-col justify-end overflow-hidden p-6 no-underline sm:aspect-[16/7] sm:justify-center sm:p-8"
       >
         <img
           src={image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-[62%_center] transition-transform duration-300 group-hover:scale-105 sm:object-[70%_center] lg:object-[82%_center]"
+          className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-300 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
-        <div className="relative">
-          <h3 className="text-shadow-soft text-lg font-bold text-white">{title}</h3>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent sm:bg-gradient-to-r sm:from-black/75 sm:via-black/25 sm:to-transparent" />
+        <div className="relative sm:max-w-xs">
+          <h3 className="text-shadow-soft text-lg font-bold text-white sm:text-2xl">{title}</h3>
           <p className="text-shadow-soft mt-1.5 text-sm text-white/90">{description}</p>
           <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-white">
             {buttonLabel}

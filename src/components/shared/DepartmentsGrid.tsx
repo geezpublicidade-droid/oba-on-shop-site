@@ -46,7 +46,7 @@ export const DEPARTMENTS = [
 
 export function DepartmentsGrid() {
   return (
-    <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="flex flex-col gap-5">
       {DEPARTMENTS.map((department) => (
         <DepartmentCard key={department.href} {...department} />
       ))}
