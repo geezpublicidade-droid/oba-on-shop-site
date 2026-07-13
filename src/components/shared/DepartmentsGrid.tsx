@@ -3,6 +3,7 @@ import { DepartmentCard } from '#/components/shared/DepartmentCard'
 import achadosImage from '#/assets/departments/achados.png'
 import ofertasImage from '#/assets/departments/ofertas.png'
 import digitalImage from '#/assets/departments/digital.png'
+import negociosImage from '#/assets/departments/negocios.png'
 
 export const DEPARTMENTS = [
   {
@@ -39,6 +40,7 @@ export const DEPARTMENTS = [
     buttonLabel: 'Ver soluções',
     href: '/negocios' as const,
     accent: 'linear-gradient(135deg, var(--oba-amber), var(--oba-orange-deep))',
+    image: negociosImage,
   },
 ]
 
