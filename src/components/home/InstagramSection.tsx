@@ -15,7 +15,7 @@ export function InstagramSection() {
           tone="light"
         />
         <p className="text-shadow-soft text-sm font-semibold text-white/95">{SITE.instagramHandle}</p>
-        <Button asChild size="lg" variant="secondary" className="rounded-full">
+        <Button asChild size="lg" variant="onColor" className="rounded-full">
           <a href={SITE.instagramUrl} target="_blank" rel="noopener noreferrer">
             Seguir no Instagram
           </a>

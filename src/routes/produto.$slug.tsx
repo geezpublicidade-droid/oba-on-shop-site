@@ -84,7 +84,7 @@ function ProductPage() {
               </span>
             )}
             {product.discountPercentage && (
-              <span className="rounded-full bg-primary/10 px-2.5 py-1 text-sm font-bold text-primary">
+              <span className="rounded-full bg-primary px-2.5 py-1 text-sm font-bold text-primary-foreground">
                 -{product.discountPercentage}%
               </span>
             )}

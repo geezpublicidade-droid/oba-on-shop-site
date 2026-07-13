@@ -28,7 +28,7 @@ export function NewsletterSection() {
         />
 
         {submitted ? (
-          <p className="rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary" role="status">
+          <p className="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground" role="status">
             Prontinho! Você vai receber nossas novidades em breve.
           </p>
         ) : (

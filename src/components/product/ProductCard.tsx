@@ -40,7 +40,7 @@ export function ProductCard({ product }: { product: Product }) {
               <div className="flex items-baseline gap-2">
                 <span className="text-lg font-bold text-foreground">{formatPrice(product.currentPrice)}</span>
                 {product.discountPercentage && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                  <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground">
                     -{product.discountPercentage}%
                   </span>
                 )}
