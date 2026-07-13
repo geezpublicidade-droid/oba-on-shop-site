@@ -10,6 +10,7 @@ export type AppRoute =
   | '/politica-de-privacidade'
   | '/termos'
   | '/aviso-de-afiliados'
+  | '/venda-na-oba'
 
 export interface NavItem {
   label: string
@@ -30,6 +31,7 @@ export const mainNav: NavItem[] = [
 export const footerInstitutional: NavItem[] = [
   { label: 'Sobre a Oba', href: '/sobre' },
   { label: 'Suporte', href: '/suporte' },
+  { label: 'Venda na Oba', href: '/venda-na-oba' },
   { label: 'Política de Privacidade', href: '/politica-de-privacidade' },
   { label: 'Termos de Uso', href: '/termos' },
   { label: 'Aviso de Afiliados', href: '/aviso-de-afiliados' },

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VendaNaObaRouteImport } from './routes/venda-na-oba'
 import { Route as TermosRouteImport } from './routes/termos'
 import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as SobreRouteImport } from './routes/sobre'
@@ -26,6 +27,11 @@ import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AdminProdutosNovoRouteImport } from './routes/admin.produtos.novo'
 import { Route as AdminProdutosIdEditarRouteImport } from './routes/admin.produtos.$id.editar'
 
+const VendaNaObaRoute = VendaNaObaRouteImport.update({
+  id: '/venda-na-oba',
+  path: '/venda-na-oba',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TermosRoute = TermosRouteImport.update({
   id: '/termos',
   path: '/termos',
@@ -119,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/sobre': typeof SobreRoute
   '/suporte': typeof SuporteRoute
   '/termos': typeof TermosRoute
+  '/venda-na-oba': typeof VendaNaObaRoute
   '/admin/login': typeof AdminLoginRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByTo {
   '/sobre': typeof SobreRoute
   '/suporte': typeof SuporteRoute
   '/termos': typeof TermosRoute
+  '/venda-na-oba': typeof VendaNaObaRoute
   '/admin/login': typeof AdminLoginRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/admin': typeof AdminIndexRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/sobre': typeof SobreRoute
   '/suporte': typeof SuporteRoute
   '/termos': typeof TermosRoute
+  '/venda-na-oba': typeof VendaNaObaRoute
   '/admin/login': typeof AdminLoginRoute
   '/produto/$slug': typeof ProdutoSlugRoute
   '/admin/': typeof AdminIndexRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/suporte'
     | '/termos'
+    | '/venda-na-oba'
     | '/admin/login'
     | '/produto/$slug'
     | '/admin/'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/suporte'
     | '/termos'
+    | '/venda-na-oba'
     | '/admin/login'
     | '/produto/$slug'
     | '/admin'
@@ -212,6 +223,7 @@ export interface FileRouteTypes {
     | '/sobre'
     | '/suporte'
     | '/termos'
+    | '/venda-na-oba'
     | '/admin/login'
     | '/produto/$slug'
     | '/admin/'
@@ -231,6 +243,7 @@ export interface RootRouteChildren {
   SobreRoute: typeof SobreRoute
   SuporteRoute: typeof SuporteRoute
   TermosRoute: typeof TermosRoute
+  VendaNaObaRoute: typeof VendaNaObaRoute
   AdminLoginRoute: typeof AdminLoginRoute
   ProdutoSlugRoute: typeof ProdutoSlugRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -240,6 +253,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/venda-na-oba': {
+      id: '/venda-na-oba'
+      path: '/venda-na-oba'
+      fullPath: '/venda-na-oba'
+      preLoaderRoute: typeof VendaNaObaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/termos': {
       id: '/termos'
       path: '/termos'
@@ -367,6 +387,7 @@ const rootRouteChildren: RootRouteChildren = {
   SobreRoute: SobreRoute,
   SuporteRoute: SuporteRoute,
   TermosRoute: TermosRoute,
+  VendaNaObaRoute: VendaNaObaRoute,
   AdminLoginRoute: AdminLoginRoute,
   ProdutoSlugRoute: ProdutoSlugRoute,
   AdminIndexRoute: AdminIndexRoute,
