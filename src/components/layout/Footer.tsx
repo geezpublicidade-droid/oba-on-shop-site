@@ -76,8 +76,14 @@ export function Footer() {
       </div>
 
       <div className="border-t border-[var(--line)] py-5">
-        <p className="page-wrap text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} {SITE.name}. Todos os direitos reservados.
+        <p className="page-wrap flex flex-wrap items-center justify-center gap-x-2 text-center text-xs text-muted-foreground">
+          <span>
+            © {new Date().getFullYear()} {SITE.name}. Todos os direitos reservados.
+          </span>
+          <span aria-hidden="true">·</span>
+          <Link to="/admin" className="hover:text-primary">
+            Admin
+          </Link>
         </p>
       </div>
     </footer>

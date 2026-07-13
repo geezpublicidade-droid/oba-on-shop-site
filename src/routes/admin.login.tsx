@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { KeyRound } from 'lucide-react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { ArrowLeft, KeyRound } from 'lucide-react'
 import { adminLogin } from '#/server/admin'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
@@ -65,6 +65,14 @@ function AdminLoginPage() {
         <Button type="submit" disabled={loading} className="rounded-full">
           {loading ? 'Entrando...' : 'Entrar'}
         </Button>
+
+        <Link
+          to="/"
+          className="flex items-center justify-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-primary"
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Voltar ao site
+        </Link>
       </form>
     </div>
   )

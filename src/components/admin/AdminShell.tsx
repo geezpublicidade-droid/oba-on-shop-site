@@ -1,5 +1,5 @@
 import { Link, useRouter } from '@tanstack/react-router'
-import { LogOut, Package, Plus } from 'lucide-react'
+import { ArrowLeft, LogOut, Package, Plus } from 'lucide-react'
 import { adminLogout } from '#/server/admin'
 import { Button } from '#/components/ui/button'
 
@@ -20,6 +20,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             Painel Oba On Shop
           </Link>
           <div className="flex items-center gap-2">
+            <Button asChild size="sm" variant="outline">
+              <Link to="/">
+                <ArrowLeft className="size-4" aria-hidden="true" />
+                Voltar ao site
+              </Link>
+            </Button>
             <Button asChild size="sm" className="rounded-full">
               <Link to="/admin/produtos/novo">
                 <Plus className="size-4" aria-hidden="true" />
