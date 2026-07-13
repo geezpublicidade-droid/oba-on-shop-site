@@ -2,11 +2,17 @@ import { createServerFn } from '@tanstack/react-start'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import type { Product } from '#/data/products'
+import bundledProducts from '#/data/products.json'
 import { getAdminSession, isAdminAuthenticated } from '#/server/admin-auth'
 
 const PRODUCTS_PATH = path.join(process.cwd(), 'src/data/products.json')
 
 async function readProductsFile(): Promise<Product[]> {
+  // Em produção o arquivo não é empacotado na função serverless (só é lido em
+  // disco durante `npm run dev`), então usamos o snapshot importado no build.
+  if (!import.meta.env.DEV) {
+    return structuredClone(bundledProducts) as Product[]
+  }
   const raw = await fs.readFile(PRODUCTS_PATH, 'utf-8')
   return JSON.parse(raw) as Product[]
 }
