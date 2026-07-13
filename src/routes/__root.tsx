@@ -1,4 +1,4 @@
-import { HeadContent, Outlet, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import appCss from '../styles.css?url'
 import logo from '#/assets/logo.png'
@@ -55,6 +55,13 @@ function RootDocument({ children }: { children: ReactNode }) {
 }
 
 function RootComponent() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const isAdmin = pathname.startsWith('/admin')
+
+  if (isAdmin) {
+    return <Outlet />
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
