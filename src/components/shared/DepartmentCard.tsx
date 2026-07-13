@@ -24,12 +24,12 @@ export function DepartmentCard({
     return (
       <Link
         to={href}
-        className="oba-card group relative flex min-h-[260px] flex-col justify-end overflow-hidden p-6 no-underline"
+        className="oba-card group relative flex min-h-[260px] flex-col justify-end overflow-hidden p-6 no-underline sm:min-h-[280px] lg:min-h-[300px]"
       >
         <img
           src={image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full object-cover object-[62%_center] transition-transform duration-300 group-hover:scale-105 sm:object-[70%_center] lg:object-[82%_center]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent" />
         <div className="relative">
