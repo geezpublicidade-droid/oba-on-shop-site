@@ -20,12 +20,12 @@ const HIGHLIGHTS: Highlight[] = [
 export function HighlightsSection() {
   return (
     <section className="page-wrap py-4 sm:py-8">
-      <div className="flex gap-5 overflow-x-auto pb-2 sm:justify-center sm:gap-8" style={{ scrollbarWidth: 'thin' }}>
+      <div className="no-scrollbar flex snap-x snap-mandatory gap-5 overflow-x-auto pb-2 sm:snap-none sm:justify-center sm:gap-8">
         {HIGHLIGHTS.map((highlight) => (
           <Link
             key={highlight.href + highlight.label}
             to={highlight.href}
-            className="flex shrink-0 flex-col items-center gap-2 text-center no-underline"
+            className="flex shrink-0 snap-center flex-col items-center gap-2 text-center no-underline"
           >
             <span className="block aspect-square size-16 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-[0_2px_10px_rgba(58,31,15,0.14)] sm:size-20">
               <img
