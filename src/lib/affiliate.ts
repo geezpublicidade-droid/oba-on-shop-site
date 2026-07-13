@@ -1,3 +1,5 @@
+import { recordAffiliateClick } from '#/server/analytics'
+
 export interface AffiliateClickParams {
   productId: string
   productName: string
@@ -45,4 +47,7 @@ export function trackAffiliateClick({
   if (import.meta.env.DEV) {
     console.info('[affiliate_link_click]', { ...payload, affiliateUrl })
   }
+
+  // Best-effort: não bloqueia a navegação para o link de afiliado.
+  recordAffiliateClick({ data: { productId } }).catch(() => {})
 }
