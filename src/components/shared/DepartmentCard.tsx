@@ -29,7 +29,7 @@ export function DepartmentCard({
         <img
           src={image}
           alt=""
-          className="absolute inset-0 h-full w-full object-cover object-right transition-transform duration-300 group-hover:scale-105"
+          className="absolute inset-0 h-full w-full rounded-[inherit] object-cover object-right transition-transform duration-300 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent sm:bg-gradient-to-r sm:from-black/75 sm:via-black/25 sm:to-transparent" />
         <div className="relative sm:max-w-xs">

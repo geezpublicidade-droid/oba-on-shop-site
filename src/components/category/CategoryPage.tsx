@@ -84,16 +84,24 @@ export function CategoryPage({
   return (
     <div className="page-wrap py-10">
       <div
-        className="oba-shell relative overflow-hidden rounded-3xl px-6 py-10 text-white sm:px-10 sm:py-14"
+        className="oba-shell relative flex aspect-[4/3] flex-col justify-end overflow-hidden rounded-3xl px-6 py-10 text-white sm:aspect-[16/7] sm:justify-center sm:px-10 sm:py-14"
         style={{ background: meta.banner }}
       >
-        <p className="text-shadow-soft text-sm font-bold uppercase tracking-widest text-white/90">
-          {meta.kicker}
-        </p>
-        <h1 className="text-shadow-soft display-title mt-2 text-4xl font-extrabold sm:text-5xl">
-          {meta.title}
-        </h1>
-        <p className="text-shadow-soft mt-3 max-w-xl text-lg text-white/95">{meta.description}</p>
+        <img
+          src={meta.image}
+          alt=""
+          className="absolute inset-0 h-full w-full rounded-[inherit] object-cover object-right"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent sm:bg-gradient-to-r sm:from-black/75 sm:via-black/25 sm:to-transparent" />
+        <div className="relative sm:max-w-md">
+          <p className="text-shadow-soft text-sm font-bold uppercase tracking-widest text-white/90">
+            {meta.kicker}
+          </p>
+          <h1 className="text-shadow-soft display-title mt-2 text-4xl font-extrabold sm:text-5xl">
+            {meta.title}
+          </h1>
+          <p className="text-shadow-soft mt-3 max-w-xl text-lg text-white/95">{meta.description}</p>
+        </div>
       </div>
 
       <div className="mt-8 flex flex-col gap-4">
