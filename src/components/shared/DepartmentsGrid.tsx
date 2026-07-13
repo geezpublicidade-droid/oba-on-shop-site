@@ -1,6 +1,7 @@
 import { Briefcase, Sparkles, Tag, Search } from 'lucide-react'
 import { DepartmentCard } from '#/components/shared/DepartmentCard'
 import achadosImage from '#/assets/departments/achados.png'
+import ofertasImage from '#/assets/departments/ofertas.png'
 
 export const DEPARTMENTS = [
   {
@@ -19,6 +20,7 @@ export const DEPARTMENTS = [
     buttonLabel: 'Ver ofertas',
     href: '/ofertas' as const,
     accent: 'linear-gradient(135deg, var(--oba-coral), var(--oba-pink))',
+    image: ofertasImage,
   },
   {
     icon: Sparkles,
