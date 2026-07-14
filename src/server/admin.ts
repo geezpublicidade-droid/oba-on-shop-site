@@ -1,29 +1,77 @@
 import { createServerFn } from '@tanstack/react-start'
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
+import { get, put } from '@vercel/blob'
 import type { Product } from '#/data/products'
 import bundledProducts from '#/data/products.json'
 import { getAdminSession, isAdminAuthenticated } from '#/server/admin-auth'
 
-const PRODUCTS_PATH = path.join(process.cwd(), 'src/data/products.json')
+const BLOB_PATHNAME = 'products.json'
+const LOCAL_PATH = path.join(process.cwd(), 'src/data/products.json')
+const CACHE_TTL_MS = 15_000
 
-async function readProductsFile(): Promise<Product[]> {
-  // Em produção o arquivo não é empacotado na função serverless (só é lido em
-  // disco durante `npm run dev`), então usamos o snapshot importado no build.
-  if (!import.meta.env.DEV) {
-    return structuredClone(bundledProducts) as Product[]
-  }
-  const raw = await fs.readFile(PRODUCTS_PATH, 'utf-8')
-  return JSON.parse(raw) as Product[]
+let cache: { products: Product[]; expiresAt: number } | null = null
+
+function hasBlob(): boolean {
+  return Boolean(process.env.BLOB_READ_WRITE_TOKEN)
 }
 
-async function writeProductsFile(products: Product[]): Promise<void> {
+async function readFromBlob(): Promise<Product[]> {
+  const result = await get(BLOB_PATHNAME, { access: 'private', useCache: false })
+  if (!result) {
+    // Ainda não existe nada gravado no Blob — semeia com o snapshot do build.
+    const seed = structuredClone(bundledProducts) as Product[]
+    await put(BLOB_PATHNAME, JSON.stringify(seed, null, 2), {
+      access: 'private',
+      contentType: 'application/json',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    })
+    return seed
+  }
+  const text = await new Response(result.stream).text()
+  return JSON.parse(text) as Product[]
+}
+
+async function readProducts(): Promise<Product[]> {
+  if (cache && cache.expiresAt > Date.now()) {
+    return cache.products
+  }
+
+  let products: Product[]
+  if (hasBlob()) {
+    products = await readFromBlob()
+  } else if (import.meta.env.DEV) {
+    const raw = await fs.readFile(LOCAL_PATH, 'utf-8')
+    products = JSON.parse(raw) as Product[]
+  } else {
+    products = structuredClone(bundledProducts) as Product[]
+  }
+
+  cache = { products, expiresAt: Date.now() + CACHE_TTL_MS }
+  return products
+}
+
+async function writeProducts(products: Product[]): Promise<void> {
+  if (hasBlob()) {
+    await put(BLOB_PATHNAME, JSON.stringify(products, null, 2), {
+      access: 'private',
+      contentType: 'application/json',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+    })
+    cache = { products, expiresAt: Date.now() + CACHE_TTL_MS }
+    return
+  }
+
   if (!import.meta.env.DEV) {
     throw new Error(
-      'A edição de produtos pelo admin só funciona rodando o site localmente (npm run dev), pois grava direto no arquivo de dados.',
+      'Não há Blob Store configurado (BLOB_READ_WRITE_TOKEN) e a edição local só funciona rodando o site com npm run dev.',
     )
   }
-  await fs.writeFile(PRODUCTS_PATH, `${JSON.stringify(products, null, 2)}\n`, 'utf-8')
+
+  await fs.writeFile(LOCAL_PATH, `${JSON.stringify(products, null, 2)}\n`, 'utf-8')
+  cache = { products, expiresAt: Date.now() + CACHE_TTL_MS }
 }
 
 async function requireAuth(): Promise<void> {
@@ -57,16 +105,19 @@ export const adminLogout = createServerFn({ method: 'POST' }).handler(async () =
   return { success: true as const }
 })
 
+/** Server function pública (sem auth) usada pelas rotas da loja para carregar o catálogo mais atual. */
+export const getLiveProducts = createServerFn({ method: 'GET' }).handler(() => readProducts())
+
 export const adminListProducts = createServerFn({ method: 'GET' }).handler(async () => {
   await requireAuth()
-  return readProductsFile()
+  return readProducts()
 })
 
 export const adminGetProduct = createServerFn({ method: 'GET' })
   .validator((data: unknown) => data as { id: string })
   .handler(async ({ data }) => {
     await requireAuth()
-    const products = await readProductsFile()
+    const products = await readProducts()
     const product = products.find((item) => item.id === data.id)
     if (!product) throw new Error('Produto não encontrado.')
     return product
@@ -76,7 +127,7 @@ export const adminSaveProduct = createServerFn({ method: 'POST' })
   .validator((data: unknown) => data as { product: Product; isNew: boolean })
   .handler(async ({ data }) => {
     await requireAuth()
-    const products = await readProductsFile()
+    const products = await readProducts()
 
     if (data.isNew) {
       if (products.some((item) => item.slug === data.product.slug)) {
@@ -99,7 +150,7 @@ export const adminSaveProduct = createServerFn({ method: 'POST' })
       }
     }
 
-    await writeProductsFile(products)
+    await writeProducts(products)
     return { success: true as const }
   })
 
@@ -107,8 +158,8 @@ export const adminDeleteProduct = createServerFn({ method: 'POST' })
   .validator((data: unknown) => data as { id: string })
   .handler(async ({ data }) => {
     await requireAuth()
-    const products = await readProductsFile()
-    await writeProductsFile(products.filter((item) => item.id !== data.id))
+    const products = await readProducts()
+    await writeProducts(products.filter((item) => item.id !== data.id))
     return { success: true as const }
   })
 
@@ -116,10 +167,10 @@ export const adminToggleActive = createServerFn({ method: 'POST' })
   .validator((data: unknown) => data as { id: string })
   .handler(async ({ data }) => {
     await requireAuth()
-    const products = await readProductsFile()
+    const products = await readProducts()
     const index = products.findIndex((item) => item.id === data.id)
     if (index === -1) throw new Error('Produto não encontrado.')
     products[index] = { ...products[index], active: !products[index].active }
-    await writeProductsFile(products)
+    await writeProducts(products)
     return { success: true as const }
   })

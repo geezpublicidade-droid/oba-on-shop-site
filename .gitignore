@@ -14,3 +14,4 @@ todos.json
 src/data/analytics.json
 
 .vercel
+.env*.local

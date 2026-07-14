@@ -4,6 +4,8 @@ import appCss from '../styles.css?url'
 import logo from '#/assets/logo.png'
 import { Header } from '#/components/layout/Header'
 import { Footer } from '#/components/layout/Footer'
+import { setProducts } from '#/data/products'
+import { getLiveProducts } from '#/server/admin'
 
 const SITE_URL = 'https://obaonshop.com.br'
 const SITE_TITLE = 'Oba On Shop | Achados, Ofertas e Soluções Digitais'
@@ -11,6 +13,9 @@ const SITE_DESCRIPTION =
   'Encontre produtos, ofertas, soluções digitais e bons achados selecionados pela Oba On Shop.'
 
 export const Route = createRootRoute({
+  beforeLoad: async () => {
+    setProducts(await getLiveProducts())
+  },
   head: () => ({
     meta: [
       { charSet: 'utf-8' },

@@ -73,6 +73,16 @@ export interface Product {
 
 export const products: Product[] = productsData as Product[]
 
+/**
+ * Substitui o conteúdo do array em memória mantendo a mesma referência, para
+ * que os módulos que já importaram `products` (helpers e componentes) enxerguem
+ * os dados atualizados sem precisar reimportar. Usado para refletir edições
+ * feitas pelo painel /admin (armazenadas no Vercel Blob) no restante do site.
+ */
+export function setProducts(next: Product[]): void {
+  products.splice(0, products.length, ...next)
+}
+
 export function getActiveProducts(): Product[] {
   return products.filter((product) => product.active)
 }
