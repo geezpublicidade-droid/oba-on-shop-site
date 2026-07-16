@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
-import { Plus, Trash2 } from 'lucide-react'
+import { Plus, Sparkles, Trash2 } from 'lucide-react'
 import { adminSaveProduct } from '#/server/admin'
+import { adminImportProductFromUrl } from '#/server/product-import'
 import type {
   Product,
   ProductBadge,
@@ -79,9 +80,44 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const [slugTouched, setSlugTouched] = useState(!isNew)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [importUrl, setImportUrl] = useState(product.affiliateUrl)
+  const [importing, setImporting] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
 
   function update<TKey extends keyof Product>(key: TKey, value: Product[TKey]) {
     setProduct((prev) => ({ ...prev, [key]: value }))
+  }
+
+  async function handleImport() {
+    if (!importUrl.trim()) {
+      setImportError('Cole o link do produto primeiro.')
+      return
+    }
+    setImporting(true)
+    setImportError(null)
+    try {
+      const data = await adminImportProductFromUrl({ data: { url: importUrl.trim() } })
+      handleNameChange(data.name || product.name)
+      setProduct((prev) => ({
+        ...prev,
+        shortDescription: data.shortDescription || prev.shortDescription,
+        description: data.description || prev.description,
+        image: data.image || prev.image,
+        gallery: data.gallery.length > 0 ? data.gallery : prev.gallery,
+        currentPrice: data.currentPrice || prev.currentPrice,
+        oldPrice: data.oldPrice ?? prev.oldPrice,
+        platform: data.platform,
+        affiliateUrl: importUrl.trim(),
+      }))
+      if (data.benefits.length > 0) setBenefitsText(data.benefits.join('\n'))
+      if (data.gallery.length > 0) setGalleryText(data.gallery.join('\n'))
+      if (data.tags.length > 0) setTagsText(data.tags.join(', '))
+      if (data.specs.length > 0) setSpecs(data.specs)
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Não foi possível importar os dados do produto.')
+    } finally {
+      setImporting(false)
+    }
   }
 
   function handleNameChange(value: string) {
@@ -130,6 +166,28 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
       {error && (
         <p className="oba-card border-destructive/40 px-4 py-3 text-sm font-medium text-destructive">{error}</p>
       )}
+
+      <section className="oba-card flex flex-col gap-3 border-[var(--oba-orange)]/40 bg-[var(--oba-orange)]/5 p-5">
+        <h2 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <Sparkles className="size-4 text-[var(--oba-orange)]" /> Importar automaticamente
+        </h2>
+        <p className="text-xs text-muted-foreground">
+          Cole o link do produto (já com seu link de afiliado, se tiver) e a IA preenche nome, descrição,
+          fotos, preço e ficha técnica. Confira tudo antes de salvar.
+        </p>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Input
+            value={importUrl}
+            onChange={(e) => setImportUrl(e.target.value)}
+            placeholder="https://..."
+            className="flex-1"
+          />
+          <Button type="button" onClick={handleImport} disabled={importing} className="rounded-full">
+            {importing ? 'Buscando...' : 'Buscar dados'}
+          </Button>
+        </div>
+        {importError && <p className="text-sm font-medium text-destructive">{importError}</p>}
+      </section>
 
       <section className="oba-card flex flex-col gap-4 p-5">
         <h2 className="text-sm font-semibold text-foreground">Informações principais</h2>
