@@ -10,7 +10,7 @@ import { ProductSpecsTable } from '#/components/product/ProductSpecsTable'
 import { TrustBadges } from '#/components/product/TrustBadges'
 import { StickyBuyBar } from '#/components/product/StickyBuyBar'
 import { SectionHeader } from '#/components/shared/SectionHeader'
-import { buildProductJsonLd } from '#/lib/seo'
+import { buildPageMeta, buildProductJsonLd } from '#/lib/seo'
 
 function formatPrice(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
@@ -22,17 +22,16 @@ export const Route = createFileRoute('/produto/$slug')({
     if (!product) throw notFound()
     return { product, related: getRelatedProducts(product) }
   },
-  head: ({ loaderData }) => ({
-    meta: loaderData
-      ? [
-          { title: `${loaderData.product.name} | Oba On Shop` },
-          { name: 'description', content: loaderData.product.shortDescription },
-          { property: 'og:title', content: loaderData.product.name },
-          { property: 'og:description', content: loaderData.product.shortDescription },
-          { property: 'og:type', content: 'product' },
-        ]
-      : [],
-  }),
+  head: ({ loaderData }) =>
+    loaderData
+      ? buildPageMeta({
+          title: `${loaderData.product.name} | Oba On Shop`,
+          description: loaderData.product.shortDescription,
+          path: `/produto/${loaderData.product.slug}`,
+          image: loaderData.product.image,
+          type: 'product',
+        })
+      : {},
   component: ProductPage,
   notFoundComponent: () => (
     <div className="page-wrap flex min-h-[40vh] flex-col items-center justify-center gap-3 py-20 text-center">

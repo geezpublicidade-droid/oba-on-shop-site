@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { buildPageMeta } from '#/lib/seo'
 
 export const Route = createFileRoute('/termos')({
-  head: () => ({
-    meta: [
-      { title: 'Termos de Uso | Oba On Shop' },
-      { name: 'description', content: 'Termos de uso da Oba On Shop.' },
-    ],
-  }),
+  head: () =>
+    buildPageMeta({
+      title: 'Termos de Uso | Oba On Shop',
+      description: 'Termos de uso da Oba On Shop.',
+      path: '/termos',
+    }),
   component: TermosPage,
 })
 

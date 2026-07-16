@@ -33,7 +33,8 @@ async function readFromBlob(): Promise<Product[]> {
   return JSON.parse(text) as Product[]
 }
 
-async function readProducts(): Promise<Product[]> {
+/** Exportada (sem createServerFn) pra poder ser chamada fora do contexto de request do TanStack Start — ex: rotas Nitro puras como o sitemap.xml. */
+export async function readProducts(): Promise<Product[]> {
   if (cache && cache.expiresAt > Date.now()) {
     return cache.products
   }

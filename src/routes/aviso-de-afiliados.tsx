@@ -1,13 +1,14 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { AffiliateDisclosure } from '#/components/product/AffiliateDisclosure'
+import { buildPageMeta } from '#/lib/seo'
 
 export const Route = createFileRoute('/aviso-de-afiliados')({
-  head: () => ({
-    meta: [
-      { title: 'Aviso de Afiliados | Oba On Shop' },
-      { name: 'description', content: 'Entenda como funcionam os links de afiliados na Oba On Shop.' },
-    ],
-  }),
+  head: () =>
+    buildPageMeta({
+      title: 'Aviso de Afiliados | Oba On Shop',
+      description: 'Entenda como funcionam os links de afiliados na Oba On Shop.',
+      path: '/aviso-de-afiliados',
+    }),
   component: AvisoDeAfiliadosPage,
 })
 

@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { buildPageMeta } from '#/lib/seo'
 
 export const Route = createFileRoute('/politica-de-privacidade')({
-  head: () => ({
-    meta: [
-      { title: 'Política de Privacidade | Oba On Shop' },
-      { name: 'description', content: 'Saiba como a Oba On Shop trata seus dados.' },
-    ],
-  }),
+  head: () =>
+    buildPageMeta({
+      title: 'Política de Privacidade | Oba On Shop',
+      description: 'Saiba como a Oba On Shop trata seus dados.',
+      path: '/politica-de-privacidade',
+    }),
   component: PoliticaDePrivacidadePage,
 })
 

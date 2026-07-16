@@ -1,15 +1,16 @@
 import { createFileRoute, useSearch } from '@tanstack/react-router'
 import { CategoryPage } from '#/components/category/CategoryPage'
 import { validateCategorySearch } from '#/lib/search-params'
+import { buildPageMeta } from '#/lib/seo'
 
 export const Route = createFileRoute('/digital')({
   validateSearch: validateCategorySearch,
-  head: () => ({
-    meta: [
-      { title: 'Oba Digital | Oba On Shop' },
-      { name: 'description', content: 'E-books, cursos, ferramentas e produtos digitais selecionados pela Oba On Shop.' },
-    ],
-  }),
+  head: () =>
+    buildPageMeta({
+      title: 'Oba Digital | Oba On Shop',
+      description: 'E-books, cursos, ferramentas e produtos digitais selecionados pela Oba On Shop.',
+      path: '/digital',
+    }),
   component: DigitalPage,
 })
 

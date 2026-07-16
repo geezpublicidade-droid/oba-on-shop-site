@@ -6,17 +6,16 @@ import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
 import { SectionHeader } from '#/components/shared/SectionHeader'
 import { SITE } from '#/lib/nav'
+import { buildPageMeta } from '#/lib/seo'
 
 export const Route = createFileRoute('/venda-na-oba')({
-  head: () => ({
-    meta: [
-      { title: 'Venda na Oba On Shop | Em breve' },
-      {
-        name: 'description',
-        content: 'A Oba On Shop está estudando um jeito de você cadastrar e vender seus produtos na plataforma. Deixe seu contato para ser avisado em primeira mão.',
-      },
-    ],
-  }),
+  head: () =>
+    buildPageMeta({
+      title: 'Venda na Oba On Shop | Em breve',
+      description:
+        'A Oba On Shop está estudando um jeito de você cadastrar e vender seus produtos na plataforma. Deixe seu contato para ser avisado em primeira mão.',
+      path: '/venda-na-oba',
+    }),
   component: VendaNaObaPage,
 })
 

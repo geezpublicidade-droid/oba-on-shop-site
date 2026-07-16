@@ -1,14 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { SectionHeader } from '#/components/shared/SectionHeader'
 import { DepartmentsGrid } from '#/components/shared/DepartmentsGrid'
+import { buildPageMeta } from '#/lib/seo'
 
 export const Route = createFileRoute('/departamentos')({
-  head: () => ({
-    meta: [
-      { title: 'Departamentos | Oba On Shop' },
-      { name: 'description', content: 'Explore os departamentos da Oba On Shop: achados, ofertas, digital e negócios.' },
-    ],
-  }),
+  head: () =>
+    buildPageMeta({
+      title: 'Departamentos | Oba On Shop',
+      description: 'Explore os departamentos da Oba On Shop: achados, ofertas, digital e negócios.',
+      path: '/departamentos',
+    }),
   component: DepartamentosPage,
 })
 

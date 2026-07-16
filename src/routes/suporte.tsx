@@ -3,6 +3,7 @@ import { Instagram, MessageCircle } from 'lucide-react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '#/components/ui/accordion'
 import { SectionHeader } from '#/components/shared/SectionHeader'
 import { SITE } from '#/lib/nav'
+import { buildPageMeta } from '#/lib/seo'
 
 const FAQ = [
   {
@@ -46,12 +47,12 @@ const FAQ = [
 ]
 
 export const Route = createFileRoute('/suporte')({
-  head: () => ({
-    meta: [
-      { title: 'Suporte | Oba On Shop' },
-      { name: 'description', content: 'Tire suas dúvidas sobre como funciona a Oba On Shop.' },
-    ],
-  }),
+  head: () =>
+    buildPageMeta({
+      title: 'Suporte | Oba On Shop',
+      description: 'Tire suas dúvidas sobre como funciona a Oba On Shop.',
+      path: '/suporte',
+    }),
   component: SuportePage,
 })
 

@@ -6,8 +6,8 @@ import { Header } from '#/components/layout/Header'
 import { Footer } from '#/components/layout/Footer'
 import { setProducts } from '#/data/products'
 import { getLiveProducts } from '#/server/admin'
+import { SITE_URL, buildOrganizationJsonLd, buildWebsiteJsonLd } from '#/lib/seo'
 
-const SITE_URL = 'https://obaonshop.com.br'
 const SITE_TITLE = 'Oba On Shop | Achados, Ofertas e Soluções Digitais'
 const SITE_DESCRIPTION =
   'Encontre produtos, ofertas, soluções digitais e bons achados selecionados pela Oba On Shop.'
@@ -31,11 +31,15 @@ export const Route = createRootRoute({
       { name: 'twitter:card', content: 'summary_large_image' },
       { name: 'twitter:title', content: SITE_TITLE },
       { name: 'twitter:description', content: SITE_DESCRIPTION },
+      { 'script:ld+json': buildOrganizationJsonLd() },
+      { 'script:ld+json': buildWebsiteJsonLd() },
     ],
     links: [
       { rel: 'stylesheet', href: appCss },
+      { rel: 'icon', href: '/favicon.ico', sizes: '32x32' },
       { rel: 'icon', href: logo, type: 'image/png' },
-      { rel: 'canonical', href: SITE_URL },
+      { rel: 'apple-touch-icon', href: '/logo192.png' },
+      { rel: 'manifest', href: '/manifest.json' },
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: '' },
     ],
