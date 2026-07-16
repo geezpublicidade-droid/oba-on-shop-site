@@ -5,7 +5,7 @@ import { isAdminAuthenticated } from '#/server/admin-auth'
 const FETCH_TIMEOUT_MS = 15_000
 const AI_TIMEOUT_MS = 30_000
 const MAX_HTML_CHARS = 60_000
-const GEMINI_MODEL = 'gemini-flash-latest'
+const GROQ_MODEL = 'llama-3.3-70b-versatile'
 
 export interface ImportedProductData {
   name: string
@@ -117,10 +117,10 @@ function extractFirstJsonObject(text: string): string | null {
   return null
 }
 
-async function extractWithGemini(url: string, signals: string): Promise<ImportedProductData> {
-  const apiKey = process.env.GEMINI_API_KEY
+async function extractWithGroq(url: string, signals: string): Promise<ImportedProductData> {
+  const apiKey = process.env.GROQ_API_KEY
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY não configurado no .env do projeto.')
+    throw new Error('GROQ_API_KEY não configurado no .env do projeto.')
   }
 
   const prompt = `Você recebe metadados extraídos da página de um produto (${url}) e deve devolver APENAS um JSON válido (sem markdown, sem comentários) no formato:
@@ -141,13 +141,11 @@ Metadados da página:
 ${signals}`
 
   const requestBody = JSON.stringify({
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: {
-      responseMimeType: 'application/json',
-      thinkingConfig: { thinkingBudget: 0 },
-    },
+    model: GROQ_MODEL,
+    messages: [{ role: 'user', content: prompt }],
+    response_format: { type: 'json_object' },
+    temperature: 0.2,
   })
-  const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`
 
   let response: Response | undefined
   let errText = ''
@@ -155,9 +153,9 @@ ${signals}`
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT_MS)
     try {
-      response = await fetch(geminiUrl, {
+      response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
         body: requestBody,
         signal: controller.signal,
       })
@@ -166,8 +164,8 @@ ${signals}`
     }
     if (response.ok) break
     errText = await response.text()
-    // 503 = modelo sobrecarregado (comum no tier gratuito); tenta de novo com espera curta.
-    if (response.status !== 503 || attempt === 2) break
+    // 429/503 = limite de taxa ou modelo sobrecarregado (comum no tier gratuito); tenta de novo com espera curta.
+    if ((response.status !== 429 && response.status !== 503) || attempt === 2) break
     await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)))
   }
 
@@ -176,9 +174,9 @@ ${signals}`
   }
 
   const result = (await response.json()) as {
-    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+    choices?: Array<{ message?: { content?: string } }>
   }
-  const text = result.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+  const text = result.choices?.[0]?.message?.content ?? ''
   const jsonText = extractFirstJsonObject(text)
   if (!jsonText) {
     throw new Error('A IA não retornou um JSON reconhecível.')
@@ -225,5 +223,5 @@ export const adminImportProductFromUrl = createServerFn({ method: 'POST' })
         'Não encontrei dados de produto nessa página. Esse site provavelmente carrega tudo por JavaScript (comum na Shopee) e não expõe as informações no HTML que o servidor consegue ler. Preencha os campos manualmente.',
       )
     }
-    return extractWithGemini(url.toString(), signals)
+    return extractWithGroq(url.toString(), signals)
   })
