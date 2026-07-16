@@ -5,7 +5,11 @@ import { isAdminAuthenticated } from '#/server/admin-auth'
 const FETCH_TIMEOUT_MS = 15_000
 const AI_TIMEOUT_MS = 30_000
 const MAX_HTML_CHARS = 60_000
+const MAX_PASTED_TEXT_CHARS = 20_000
+const MIN_SIGNALS_LENGTH = 200
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
+const USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
 
 export interface ImportedProductData {
   name: string
@@ -39,8 +43,7 @@ async function fetchProductPage(url: string): Promise<string> {
       signal: controller.signal,
       redirect: 'follow',
       headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+        'User-Agent': USER_AGENT,
         Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'pt-BR,pt;q=0.9',
       },
@@ -199,6 +202,19 @@ ${signals}`
   }
 }
 
+function validateUrl(rawUrl: string): URL {
+  let url: URL
+  try {
+    url = new URL(rawUrl)
+  } catch {
+    throw new Error('Link inválido.')
+  }
+  if (!/^https?:$/.test(url.protocol)) {
+    throw new Error('Link inválido.')
+  }
+  return url
+}
+
 export const adminImportProductFromUrl = createServerFn({ method: 'POST' })
   .validator((data: unknown) => data as { url: string })
   .handler(async ({ data }) => {
@@ -206,22 +222,37 @@ export const adminImportProductFromUrl = createServerFn({ method: 'POST' })
       throw new Error('UNAUTHORIZED')
     }
 
-    let url: URL
-    try {
-      url = new URL(data.url)
-    } catch {
-      throw new Error('Link inválido.')
-    }
-    if (!/^https?:$/.test(url.protocol)) {
-      throw new Error('Link inválido.')
-    }
-
+    const url = validateUrl(data.url)
     const html = await fetchProductPage(url.toString())
     const signals = extractSignals(html)
-    if (signals.length < 200) {
+
+    if (signals.length < MIN_SIGNALS_LENGTH) {
       throw new Error(
-        'Não encontrei dados de produto nessa página. Esse site provavelmente carrega tudo por JavaScript (comum na Shopee) e não expõe as informações no HTML que o servidor consegue ler. Preencha os campos manualmente.',
+        'Não encontrei dados de produto nessa página. Esse site provavelmente carrega tudo por JavaScript ou bloqueia acesso automatizado (comum na Shopee). Use a opção "Colar texto copiado" em vez do link, ou preencha os campos manualmente.',
       )
     }
+
     return extractWithGroq(url.toString(), signals)
+  })
+
+/**
+ * Extrai os dados do produto a partir de um texto que o próprio usuário copiou da página
+ * (Ctrl+A / seleção do bloco com nome, preço, descrição). Não faz nenhuma requisição à
+ * página de origem — por isso funciona mesmo em sites que bloqueiam acesso automatizado
+ * (ex: Shopee), já que quem "visitou" a página foi o navegador real do usuário.
+ */
+export const adminImportProductFromText = createServerFn({ method: 'POST' })
+  .validator((data: unknown) => data as { text: string; url: string })
+  .handler(async ({ data }) => {
+    if (!(await isAdminAuthenticated())) {
+      throw new Error('UNAUTHORIZED')
+    }
+
+    const url = validateUrl(data.url)
+    const text = data.text.trim()
+    if (text.length < MIN_SIGNALS_LENGTH) {
+      throw new Error('Cole um texto mais completo (nome, preço, descrição do produto).')
+    }
+
+    return extractWithGroq(url.toString(), text.slice(0, MAX_PASTED_TEXT_CHARS))
   })

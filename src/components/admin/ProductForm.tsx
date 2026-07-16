@@ -2,7 +2,8 @@ import { useState } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
 import { Plus, Sparkles, Trash2 } from 'lucide-react'
 import { adminSaveProduct } from '#/server/admin'
-import { adminImportProductFromUrl } from '#/server/product-import'
+import { adminImportProductFromText, adminImportProductFromUrl } from '#/server/product-import'
+import type { ImportedProductData } from '#/server/product-import'
 import type {
   Product,
   ProductBadge,
@@ -80,7 +81,9 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const [slugTouched, setSlugTouched] = useState(!isNew)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [importMode, setImportMode] = useState<'link' | 'text'>('link')
   const [importUrl, setImportUrl] = useState(product.affiliateUrl)
+  const [importText, setImportText] = useState('')
   const [importing, setImporting] = useState(false)
   const [importError, setImportError] = useState<string | null>(null)
 
@@ -88,7 +91,26 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     setProduct((prev) => ({ ...prev, [key]: value }))
   }
 
-  async function handleImport() {
+  function applyImportedData(data: ImportedProductData) {
+    handleNameChange(data.name || product.name)
+    setProduct((prev) => ({
+      ...prev,
+      shortDescription: data.shortDescription || prev.shortDescription,
+      description: data.description || prev.description,
+      image: data.image || prev.image,
+      gallery: data.gallery.length > 0 ? data.gallery : prev.gallery,
+      currentPrice: data.currentPrice || prev.currentPrice,
+      oldPrice: data.oldPrice ?? prev.oldPrice,
+      platform: data.platform,
+      affiliateUrl: importUrl.trim(),
+    }))
+    if (data.benefits.length > 0) setBenefitsText(data.benefits.join('\n'))
+    if (data.gallery.length > 0) setGalleryText(data.gallery.join('\n'))
+    if (data.tags.length > 0) setTagsText(data.tags.join(', '))
+    if (data.specs.length > 0) setSpecs(data.specs)
+  }
+
+  async function handleImportFromUrl() {
     if (!importUrl.trim()) {
       setImportError('Cole o link do produto primeiro.')
       return
@@ -97,22 +119,28 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
     setImportError(null)
     try {
       const data = await adminImportProductFromUrl({ data: { url: importUrl.trim() } })
-      handleNameChange(data.name || product.name)
-      setProduct((prev) => ({
-        ...prev,
-        shortDescription: data.shortDescription || prev.shortDescription,
-        description: data.description || prev.description,
-        image: data.image || prev.image,
-        gallery: data.gallery.length > 0 ? data.gallery : prev.gallery,
-        currentPrice: data.currentPrice || prev.currentPrice,
-        oldPrice: data.oldPrice ?? prev.oldPrice,
-        platform: data.platform,
-        affiliateUrl: importUrl.trim(),
-      }))
-      if (data.benefits.length > 0) setBenefitsText(data.benefits.join('\n'))
-      if (data.gallery.length > 0) setGalleryText(data.gallery.join('\n'))
-      if (data.tags.length > 0) setTagsText(data.tags.join(', '))
-      if (data.specs.length > 0) setSpecs(data.specs)
+      applyImportedData(data)
+    } catch (err) {
+      setImportError(err instanceof Error ? err.message : 'Não foi possível importar os dados do produto.')
+    } finally {
+      setImporting(false)
+    }
+  }
+
+  async function handleImportFromText() {
+    if (!importUrl.trim()) {
+      setImportError('Cole o link de afiliado do produto (mesmo que o texto seja de outro site).')
+      return
+    }
+    if (!importText.trim()) {
+      setImportError('Cole o texto copiado da página do produto.')
+      return
+    }
+    setImporting(true)
+    setImportError(null)
+    try {
+      const data = await adminImportProductFromText({ data: { url: importUrl.trim(), text: importText } })
+      applyImportedData(data)
     } catch (err) {
       setImportError(err instanceof Error ? err.message : 'Não foi possível importar os dados do produto.')
     } finally {
@@ -172,20 +200,69 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
           <Sparkles className="size-4 text-[var(--oba-orange)]" /> Importar automaticamente
         </h2>
         <p className="text-xs text-muted-foreground">
-          Cole o link do produto (já com seu link de afiliado, se tiver) e a IA preenche nome, descrição,
-          fotos, preço e ficha técnica. Confira tudo antes de salvar.
+          A IA preenche nome, descrição, fotos, preço e ficha técnica a partir do link ou de um texto
+          colado. Confira tudo antes de salvar.
         </p>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Input
-            value={importUrl}
-            onChange={(e) => setImportUrl(e.target.value)}
-            placeholder="https://..."
-            className="flex-1"
-          />
-          <Button type="button" onClick={handleImport} disabled={importing} className="rounded-full">
-            {importing ? 'Buscando...' : 'Buscar dados'}
-          </Button>
+
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setImportMode('link')}
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              importMode === 'link' ? 'bg-[var(--oba-orange)] text-white' : 'bg-white text-muted-foreground'
+            }`}
+          >
+            Colar link
+          </button>
+          <button
+            type="button"
+            onClick={() => setImportMode('text')}
+            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+              importMode === 'text' ? 'bg-[var(--oba-orange)] text-white' : 'bg-white text-muted-foreground'
+            }`}
+          >
+            Colar texto copiado
+          </button>
         </div>
+
+        <Field label="Link de afiliado" hint="Usado sempre, mesmo no modo 'colar texto' (fica salvo no produto).">
+          <Input value={importUrl} onChange={(e) => setImportUrl(e.target.value)} placeholder="https://..." />
+        </Field>
+
+        {importMode === 'link' ? (
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <p className="flex-1 self-center text-xs text-muted-foreground">
+              A IA busca a página sozinha. Não funciona em sites que bloqueiam acesso automatizado (ex: Shopee) —
+              nesse caso use "Colar texto copiado".
+            </p>
+            <Button type="button" onClick={handleImportFromUrl} disabled={importing} className="rounded-full">
+              {importing ? 'Buscando...' : 'Buscar dados'}
+            </Button>
+          </div>
+        ) : (
+          <>
+            <Field
+              label="Texto copiado da página"
+              hint="Abra o produto no seu app/navegador, selecione o bloco com nome, preço e descrição (ou tudo), copie e cole aqui."
+            >
+              <textarea
+                className="min-h-32 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                value={importText}
+                onChange={(e) => setImportText(e.target.value)}
+                placeholder="Cole aqui o texto copiado da página do produto..."
+              />
+            </Field>
+            <Button
+              type="button"
+              onClick={handleImportFromText}
+              disabled={importing}
+              className="self-end rounded-full"
+            >
+              {importing ? 'Extraindo...' : 'Extrair dados do texto'}
+            </Button>
+          </>
+        )}
+
         {importError && <p className="text-sm font-medium text-destructive">{importError}</p>}
       </section>
 
