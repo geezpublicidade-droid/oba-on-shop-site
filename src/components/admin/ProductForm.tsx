@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { useNavigate, useRouter } from '@tanstack/react-router'
-import { Plus, Sparkles, Trash2 } from 'lucide-react'
+import { Plus, Sparkles, Trash2, Upload } from 'lucide-react'
 import { adminSaveProduct } from '#/server/admin'
 import { adminImportProductFromText, adminImportProductFromUrl } from '#/server/product-import'
 import type { ImportedProductData } from '#/server/product-import'
+import { adminUploadProductImage } from '#/server/image-upload'
+import { compressImageFile } from '#/lib/image'
 import type {
   Product,
   ProductBadge,
@@ -81,6 +83,9 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const [slugTouched, setSlugTouched] = useState(!isNew)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingGallery, setUploadingGallery] = useState(false)
+  const [imageUploadError, setImageUploadError] = useState<string | null>(null)
   const [importMode, setImportMode] = useState<'link' | 'text'>('link')
   const [importUrl, setImportUrl] = useState(product.affiliateUrl)
   const [importText, setImportText] = useState('')
@@ -157,6 +162,60 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
 
   function updateSpec(index: number, field: keyof ProductSpec, value: string) {
     setSpecs((prev) => prev.map((spec, i) => (i === index ? { ...spec, [field]: value } : spec)))
+  }
+
+  async function uploadImage(file: File): Promise<string> {
+    const { base64, contentType } = await compressImageFile(file)
+    const { url } = await adminUploadProductImage({
+      data: { filename: file.name, contentType, dataBase64: base64 },
+    })
+    return url
+  }
+
+  async function handleMainImageUpload(file: File) {
+    setUploadingImage(true)
+    setImageUploadError(null)
+    try {
+      update('image', await uploadImage(file))
+    } catch (err) {
+      setImageUploadError(err instanceof Error ? err.message : 'Falha ao enviar imagem.')
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  async function handleGalleryUpload(files: FileList | File[]) {
+    setUploadingGallery(true)
+    setImageUploadError(null)
+    try {
+      const urls = await Promise.all([...files].map(uploadImage))
+      setGalleryText((prev) => [prev, ...urls].filter(Boolean).join('\n'))
+    } catch (err) {
+      setImageUploadError(err instanceof Error ? err.message : 'Falha ao enviar imagens.')
+    } finally {
+      setUploadingGallery(false)
+    }
+  }
+
+  function getPastedImageFiles(event: React.ClipboardEvent): File[] {
+    return [...event.clipboardData.items]
+      .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+      .map((item) => item.getAsFile())
+      .filter((file): file is File => file !== null)
+  }
+
+  function handleMainImagePaste(event: React.ClipboardEvent) {
+    const files = getPastedImageFiles(event)
+    if (files.length === 0) return
+    event.preventDefault()
+    void handleMainImageUpload(files[0])
+  }
+
+  function handleGalleryPaste(event: React.ClipboardEvent) {
+    const files = getPastedImageFiles(event)
+    if (files.length === 0) return
+    event.preventDefault()
+    void handleGalleryUpload(files)
   }
 
   async function handleSubmit(event: React.FormEvent) {
@@ -476,17 +535,67 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
         <h2 className="text-sm font-semibold text-foreground">Imagens</h2>
         <Field
           label="Imagem principal"
-          hint="Use uma URL de imagem real, ou um placeholder: placeholder:home, placeholder:tech, placeholder:kitchen, placeholder:office, placeholder:digital, placeholder:business."
+          hint="Use uma URL de imagem real, envie/cole um arquivo, ou um placeholder: placeholder:home, placeholder:tech, placeholder:kitchen, placeholder:office, placeholder:digital, placeholder:business."
         >
-          <Input value={product.image} onChange={(e) => update('image', e.target.value)} />
+          <div className="flex gap-2">
+            <Input value={product.image} onChange={(e) => update('image', e.target.value)} className="flex-1" />
+            <label className="flex cursor-pointer items-center gap-1.5 rounded-md border border-input px-3 py-2 text-sm font-medium hover:bg-accent">
+              <Upload className="size-4" />
+              {uploadingImage ? 'Enviando...' : 'Enviar arquivo'}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                disabled={uploadingImage}
+                onChange={(e) => {
+                  const file = e.target.files?.[0]
+                  if (file) void handleMainImageUpload(file)
+                  e.target.value = ''
+                }}
+              />
+            </label>
+          </div>
+          <div
+            tabIndex={0}
+            onPaste={handleMainImagePaste}
+            className="rounded-md border border-dashed border-input px-3 py-2 text-center text-xs text-muted-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+          >
+            Copiou uma imagem (Ctrl+C / "Copiar imagem")? Clique aqui e cole com Ctrl+V.
+          </div>
         </Field>
-        <Field label="Galeria" hint="Uma URL de imagem por linha (opcional).">
+        <Field label="Galeria" hint="Uma URL de imagem por linha, ou envie vários arquivos de uma vez.">
           <textarea
             className="min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
             value={galleryText}
             onChange={(e) => setGalleryText(e.target.value)}
           />
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="flex w-fit cursor-pointer items-center gap-1.5 rounded-md border border-input px-3 py-2 text-sm font-medium hover:bg-accent">
+              <Upload className="size-4" />
+              {uploadingGallery ? 'Enviando...' : 'Enviar arquivos'}
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                multiple
+                className="hidden"
+                disabled={uploadingGallery}
+                onChange={(e) => {
+                  const files = e.target.files
+                  if (files && files.length > 0) void handleGalleryUpload(files)
+                  e.target.value = ''
+                }}
+              />
+            </label>
+            <div
+              tabIndex={0}
+              onPaste={handleGalleryPaste}
+              className="flex-1 rounded-md border border-dashed border-input px-3 py-2 text-center text-xs text-muted-foreground outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            >
+              Ou clique aqui e cole (Ctrl+V) uma ou mais imagens copiadas.
+            </div>
+          </div>
         </Field>
+        {imageUploadError && <p className="text-sm font-medium text-destructive">{imageUploadError}</p>}
         <p className="text-xs text-muted-foreground">
           Stories/vídeos em formato Status podem ser adicionados diretamente no arquivo{' '}
           <code>src/data/products.json</code> (campo <code>stories</code>) por enquanto — a interface do
