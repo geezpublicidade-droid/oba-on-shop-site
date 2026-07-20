@@ -12,6 +12,39 @@ export interface CategoryMeta {
   image: string
 }
 
+export const SUBCATEGORIES: Record<ProductCategory, string[]> = {
+  achados: [
+    'Casa e decoração',
+    'Cozinha',
+    'Tecnologia',
+    'Beleza e cuidados',
+    'Moda e acessórios',
+    'Pet',
+    'Bebês e crianças',
+    'Esporte e lazer',
+    'Automotivo',
+    'Papelaria e escritório',
+  ],
+  ofertas: [
+    'Casa e decoração',
+    'Cozinha',
+    'Tecnologia',
+    'Eletrônicos',
+    'Beleza e cuidados',
+    'Moda e acessórios',
+    'Pet',
+    'Esporte e lazer',
+  ],
+  digital: ['Cursos', 'E-books', 'Templates e planilhas', 'Software e ferramentas', 'Mentorias'],
+  negocios: [
+    'Ferramentas de gestão',
+    'Marketing e vendas',
+    'Serviços profissionais',
+    'Cursos para empreendedores',
+    'Automação',
+  ],
+}
+
 export const CATEGORY_META: Record<ProductCategory, CategoryMeta> = {
   achados: {
     title: 'Achados',

@@ -14,6 +14,7 @@ import type {
   ProductSpec,
   ProductType,
 } from '#/data/products'
+import { SUBCATEGORIES } from '#/data/departments'
 import { Button } from '#/components/ui/button'
 import { Input } from '#/components/ui/input'
 import { Label } from '#/components/ui/label'
@@ -86,6 +87,9 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadingGallery, setUploadingGallery] = useState(false)
   const [imageUploadError, setImageUploadError] = useState<string | null>(null)
+  const [customSubcategory, setCustomSubcategory] = useState(
+    () => product.subcategory !== '' && !SUBCATEGORIES[product.category].includes(product.subcategory),
+  )
   const [importMode, setImportMode] = useState<'link' | 'text'>('link')
   const [importUrl, setImportUrl] = useState(product.affiliateUrl)
   const [importText, setImportText] = useState('')
@@ -368,7 +372,14 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
         <h2 className="text-sm font-semibold text-foreground">Categoria e tipo</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Categoria">
-            <Select value={product.category} onValueChange={(v) => update('category', v as ProductCategory)}>
+            <Select
+              value={product.category}
+              onValueChange={(v) => {
+                update('category', v as ProductCategory)
+                update('subcategory', '')
+                setCustomSubcategory(false)
+              }}
+            >
               <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
@@ -382,8 +393,40 @@ export function ProductForm({ initialProduct }: { initialProduct?: Product }) {
             </Select>
           </Field>
 
-          <Field label="Subcategoria" hint="Ex: casa, cursos, ferramentas...">
-            <Input value={product.subcategory} onChange={(e) => update('subcategory', e.target.value)} required />
+          <Field label="Subcategoria">
+            <Select
+              value={customSubcategory ? 'outra' : product.subcategory || undefined}
+              onValueChange={(v) => {
+                if (v === 'outra') {
+                  setCustomSubcategory(true)
+                  update('subcategory', '')
+                } else {
+                  setCustomSubcategory(false)
+                  update('subcategory', v)
+                }
+              }}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selecione a subcategoria..." />
+              </SelectTrigger>
+              <SelectContent>
+                {SUBCATEGORIES[product.category].map((sub) => (
+                  <SelectItem key={sub} value={sub}>
+                    {sub}
+                  </SelectItem>
+                ))}
+                <SelectItem value="outra">Outra (personalizada)</SelectItem>
+              </SelectContent>
+            </Select>
+            {customSubcategory && (
+              <Input
+                className="mt-2"
+                value={product.subcategory}
+                onChange={(e) => update('subcategory', e.target.value)}
+                placeholder="Digite a subcategoria"
+                required
+              />
+            )}
           </Field>
 
           <Field label="Tipo">
