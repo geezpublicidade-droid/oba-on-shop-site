@@ -6,6 +6,7 @@ import { SITE_URL } from '#/lib/seo'
 const STATIC_PAGES: Array<{ path: string; changefreq: string; priority: string }> = [
   { path: '/', changefreq: 'daily', priority: '1.0' },
   { path: '/departamentos', changefreq: 'weekly', priority: '0.8' },
+  { path: '/busca', changefreq: 'daily', priority: '0.7' },
   { path: '/achados', changefreq: 'daily', priority: '0.8' },
   { path: '/ofertas', changefreq: 'daily', priority: '0.8' },
   { path: '/digital', changefreq: 'daily', priority: '0.8' },

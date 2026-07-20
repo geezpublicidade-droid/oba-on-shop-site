@@ -1,5 +1,4 @@
 import { createServerFn } from '@tanstack/react-start'
-import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { get, put } from '@vercel/blob'
 import type { Product } from '#/data/products'
@@ -46,6 +45,7 @@ export async function readProducts(): Promise<Product[]> {
   if (hasBlob()) {
     products = await readFromBlob()
   } else if (import.meta.env.DEV) {
+    const { promises: fs } = await import('node:fs')
     const raw = await fs.readFile(localPath(), 'utf-8')
     products = JSON.parse(raw) as Product[]
   } else {
@@ -74,6 +74,7 @@ async function writeProducts(products: Product[]): Promise<void> {
     )
   }
 
+  const { promises: fs } = await import('node:fs')
   await fs.writeFile(localPath(), `${JSON.stringify(products, null, 2)}\n`, 'utf-8')
   cache = { products, expiresAt: Date.now() + CACHE_TTL_MS }
 }

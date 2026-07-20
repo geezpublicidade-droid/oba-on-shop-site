@@ -1,6 +1,7 @@
 export type AppRoute =
   | '/'
   | '/departamentos'
+  | '/busca'
   | '/achados'
   | '/ofertas'
   | '/digital'

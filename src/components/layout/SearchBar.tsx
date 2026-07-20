@@ -3,12 +3,12 @@ import { useNavigate } from '@tanstack/react-router'
 import { Search } from 'lucide-react'
 import { Input } from '#/components/ui/input'
 
-type SearchableRoute = '/achados' | '/ofertas' | '/digital' | '/negocios'
+type SearchableRoute = '/busca' | '/achados' | '/ofertas' | '/digital' | '/negocios'
 
 export function SearchBar({
   className,
   defaultValue = '',
-  onSubmitTo = '/achados',
+  onSubmitTo = '/busca',
   placeholder = 'Buscar produtos, ofertas, soluções...',
 }: {
   className?: string

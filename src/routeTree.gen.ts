@@ -18,6 +18,7 @@ import { Route as OfertasRouteImport } from './routes/ofertas'
 import { Route as NegociosRouteImport } from './routes/negocios'
 import { Route as DigitalRouteImport } from './routes/digital'
 import { Route as DepartamentosRouteImport } from './routes/departamentos'
+import { Route as BuscaRouteImport } from './routes/busca'
 import { Route as AvisoDeAfiliadosRouteImport } from './routes/aviso-de-afiliados'
 import { Route as AchadosRouteImport } from './routes/achados'
 import { Route as IndexRouteImport } from './routes/index'
@@ -72,6 +73,11 @@ const DepartamentosRoute = DepartamentosRouteImport.update({
   path: '/departamentos',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuscaRoute = BuscaRouteImport.update({
+  id: '/busca',
+  path: '/busca',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AvisoDeAfiliadosRoute = AvisoDeAfiliadosRouteImport.update({
   id: '/aviso-de-afiliados',
   path: '/aviso-de-afiliados',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/achados': typeof AchadosRoute
   '/aviso-de-afiliados': typeof AvisoDeAfiliadosRoute
+  '/busca': typeof BuscaRoute
   '/departamentos': typeof DepartamentosRoute
   '/digital': typeof DigitalRoute
   '/negocios': typeof NegociosRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/achados': typeof AchadosRoute
   '/aviso-de-afiliados': typeof AvisoDeAfiliadosRoute
+  '/busca': typeof BuscaRoute
   '/departamentos': typeof DepartamentosRoute
   '/digital': typeof DigitalRoute
   '/negocios': typeof NegociosRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/achados': typeof AchadosRoute
   '/aviso-de-afiliados': typeof AvisoDeAfiliadosRoute
+  '/busca': typeof BuscaRoute
   '/departamentos': typeof DepartamentosRoute
   '/digital': typeof DigitalRoute
   '/negocios': typeof NegociosRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/'
     | '/achados'
     | '/aviso-de-afiliados'
+    | '/busca'
     | '/departamentos'
     | '/digital'
     | '/negocios'
@@ -196,6 +206,7 @@ export interface FileRouteTypes {
     | '/'
     | '/achados'
     | '/aviso-de-afiliados'
+    | '/busca'
     | '/departamentos'
     | '/digital'
     | '/negocios'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/'
     | '/achados'
     | '/aviso-de-afiliados'
+    | '/busca'
     | '/departamentos'
     | '/digital'
     | '/negocios'
@@ -235,6 +247,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AchadosRoute: typeof AchadosRoute
   AvisoDeAfiliadosRoute: typeof AvisoDeAfiliadosRoute
+  BuscaRoute: typeof BuscaRoute
   DepartamentosRoute: typeof DepartamentosRoute
   DigitalRoute: typeof DigitalRoute
   NegociosRoute: typeof NegociosRoute
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DepartamentosRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/busca': {
+      id: '/busca'
+      path: '/busca'
+      fullPath: '/busca'
+      preLoaderRoute: typeof BuscaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/aviso-de-afiliados': {
       id: '/aviso-de-afiliados'
       path: '/aviso-de-afiliados'
@@ -379,6 +399,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AchadosRoute: AchadosRoute,
   AvisoDeAfiliadosRoute: AvisoDeAfiliadosRoute,
+  BuscaRoute: BuscaRoute,
   DepartamentosRoute: DepartamentosRoute,
   DigitalRoute: DigitalRoute,
   NegociosRoute: NegociosRoute,
