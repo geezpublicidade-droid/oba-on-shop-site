@@ -14,7 +14,15 @@ const PLACEHOLDER_STYLES: Record<
 }
 
 export function ProductImage({ image, alt, className }: { image: string; alt: string; className?: string }) {
-  const key = image.startsWith('placeholder:') ? image.replace('placeholder:', '') : 'home'
+  if (!image.startsWith('placeholder:')) {
+    return (
+      <div className={`relative overflow-hidden ${className ?? ''}`}>
+        <img src={image} alt={alt} className="h-full w-full object-cover" loading="lazy" />
+      </div>
+    )
+  }
+
+  const key = image.replace('placeholder:', '')
   const style = PLACEHOLDER_STYLES[key] ?? PLACEHOLDER_STYLES.home
 
   return (
