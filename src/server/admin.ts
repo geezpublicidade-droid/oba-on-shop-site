@@ -7,8 +7,11 @@ import bundledProducts from '#/data/products.json'
 import { getAdminSession, isAdminAuthenticated } from '#/server/admin-auth'
 
 const BLOB_PATHNAME = 'products.json'
-const LOCAL_PATH = path.join(process.cwd(), 'src/data/products.json')
 const CACHE_TTL_MS = 15_000
+
+function localPath(): string {
+  return path.join(process.cwd(), 'src/data/products.json')
+}
 
 let cache: { products: Product[]; expiresAt: number } | null = null
 
@@ -43,7 +46,7 @@ export async function readProducts(): Promise<Product[]> {
   if (hasBlob()) {
     products = await readFromBlob()
   } else if (import.meta.env.DEV) {
-    const raw = await fs.readFile(LOCAL_PATH, 'utf-8')
+    const raw = await fs.readFile(localPath(), 'utf-8')
     products = JSON.parse(raw) as Product[]
   } else {
     products = structuredClone(bundledProducts) as Product[]
@@ -71,7 +74,7 @@ async function writeProducts(products: Product[]): Promise<void> {
     )
   }
 
-  await fs.writeFile(LOCAL_PATH, `${JSON.stringify(products, null, 2)}\n`, 'utf-8')
+  await fs.writeFile(localPath(), `${JSON.stringify(products, null, 2)}\n`, 'utf-8')
   cache = { products, expiresAt: Date.now() + CACHE_TTL_MS }
 }
 
