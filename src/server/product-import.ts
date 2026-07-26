@@ -8,7 +8,7 @@ const MAX_HTML_CHARS = 60_000
 const MAX_PASTED_TEXT_CHARS = 20_000
 const MIN_SIGNALS_LENGTH = 200
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
-const GEMINI_MODEL = 'gemini-2.5-flash'
+const GEMINI_MODEL = 'gemini-flash-latest'
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
 
