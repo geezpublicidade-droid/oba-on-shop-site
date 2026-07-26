@@ -38,10 +38,20 @@ export function trackAffiliateClick({
 
   if (typeof window.gtag === 'function') {
     window.gtag('event', 'affiliate_link_click', payload)
+
+    // Dispara a conversão do Google Ads também, se uma conversion action estiver configurada
+    // (formato "AW-XXXXXXXXX/XxxXXXXxxXXXXxxXXXXx", gerado ao criar a conversão no Google Ads).
+    const adsConversionId = import.meta.env.VITE_GOOGLE_ADS_CONVERSION_ID
+    if (adsConversionId) {
+      window.gtag('event', 'conversion', { send_to: adsConversionId })
+    }
   }
 
   if (typeof window.fbq === 'function') {
     window.fbq('trackCustom', 'affiliate_link_click', payload)
+    // "Lead" é o evento padrão do Meta pra clique de referência/afiliado — ajuda a
+    // otimizar campanhas (evento customizado sozinho não serve de meta de otimização).
+    window.fbq('track', 'Lead')
   }
 
   if (import.meta.env.DEV) {

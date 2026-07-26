@@ -8,6 +8,7 @@ import { setProducts } from '#/data/products'
 import { getLiveProducts } from '#/server/admin'
 import { getWwwRedirectTarget } from '#/server/www-redirect'
 import { SITE_URL, buildOrganizationJsonLd, buildWebsiteJsonLd } from '#/lib/seo'
+import { buildTrackingScripts } from '#/lib/tracking-scripts'
 
 const SITE_TITLE = 'Oba On Shop | Achados, Ofertas e Soluções Digitais'
 const SITE_DESCRIPTION =
@@ -49,6 +50,7 @@ export const Route = createRootRoute({
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: '' },
     ],
+    scripts: buildTrackingScripts(),
   }),
   shellComponent: RootDocument,
   component: RootComponent,
