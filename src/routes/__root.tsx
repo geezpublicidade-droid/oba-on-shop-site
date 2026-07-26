@@ -27,6 +27,7 @@ export const Route = createRootRoute({
       { charSet: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       { name: 'google-site-verification', content: 'QkpMSFtZxUWKZT5i5f7-wOlG5OGG7e-EOHBzKOh7GQk' },
+      { name: 'facebook-domain-verification', content: 't8p05j3e5uutolmzay3s3rbs3m6zuj' },
       { title: SITE_TITLE },
       { name: 'description', content: SITE_DESCRIPTION },
       { property: 'og:site_name', content: 'Oba On Shop' },
