@@ -79,6 +79,21 @@ async function writeProducts(products: Product[]): Promise<void> {
   cache = { products, expiresAt: Date.now() + CACHE_TTL_MS }
 }
 
+/** Deriva `offer`/`discountPercentage` do preço sempre que houver `oldPrice` > `currentPrice`, sem depender do checkbox manual. */
+function applyOfferRule(product: Product): Product {
+  const current = product.currentPrice
+  const old = product.oldPrice
+  const hasDiscount = typeof old === 'number' && old > 0 && current > 0 && old > current
+
+  return {
+    ...product,
+    discountPercentage: hasDiscount
+      ? Math.round(((old - current) / old) * 100)
+      : product.discountPercentage,
+    offer: hasDiscount ? true : product.offer,
+  }
+}
+
 async function requireAuth(): Promise<void> {
   if (!(await isAdminAuthenticated())) {
     throw new Error('UNAUTHORIZED')
@@ -133,25 +148,26 @@ export const adminSaveProduct = createServerFn({ method: 'POST' })
   .handler(async ({ data }) => {
     await requireAuth()
     const products = await readProducts()
+    const product = applyOfferRule(data.product)
 
     if (data.isNew) {
-      if (products.some((item) => item.slug === data.product.slug)) {
+      if (products.some((item) => item.slug === product.slug)) {
         throw new Error('Já existe um produto com esse slug.')
       }
-      products.push(data.product)
+      products.push(product)
     } else {
-      const index = products.findIndex((item) => item.id === data.product.id)
+      const index = products.findIndex((item) => item.id === product.id)
       if (index === -1) throw new Error('Produto não encontrado.')
-      if (products.some((item) => item.slug === data.product.slug && item.id !== data.product.id)) {
+      if (products.some((item) => item.slug === product.slug && item.id !== product.id)) {
         throw new Error('Já existe outro produto com esse slug.')
       }
-      products[index] = data.product
+      products[index] = product
     }
 
     // Apenas um produto pode ser o "Achado da Semana" por vez.
-    if (data.product.weeklyPick) {
+    if (product.weeklyPick) {
       for (const item of products) {
-        if (item.id !== data.product.id) item.weeklyPick = false
+        if (item.id !== product.id) item.weeklyPick = false
       }
     }
 
