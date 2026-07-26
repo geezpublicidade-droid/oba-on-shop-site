@@ -151,8 +151,20 @@ export const adminSaveProduct = createServerFn({ method: 'POST' })
     const product = applyOfferRule(data.product)
 
     if (data.isNew) {
-      if (products.some((item) => item.slug === product.slug)) {
-        throw new Error('Já existe um produto com esse slug.')
+      const existing = products.find((item) => item.slug === product.slug)
+      if (existing) {
+        if (product.currentPrice >= existing.currentPrice) {
+          throw new Error('Já existe um produto com esse slug.')
+        }
+        // Preço mais baixo que o produto já cadastrado: em vez de bloquear,
+        // cadastra como oferta alternativa com um slug derivado.
+        let candidate = `${product.slug}-oferta`
+        let suffix = 2
+        while (products.some((item) => item.slug === candidate)) {
+          candidate = `${product.slug}-oferta-${suffix}`
+          suffix += 1
+        }
+        product.slug = candidate
       }
       products.push(product)
     } else {
