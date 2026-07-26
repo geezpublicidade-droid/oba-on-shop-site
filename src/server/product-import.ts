@@ -8,6 +8,7 @@ const MAX_HTML_CHARS = 60_000
 const MAX_PASTED_TEXT_CHARS = 20_000
 const MIN_SIGNALS_LENGTH = 200
 const GROQ_MODEL = 'llama-3.3-70b-versatile'
+const GEMINI_MODEL = 'gemini-2.5-flash'
 const USER_AGENT =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36'
 
@@ -120,13 +121,8 @@ function extractFirstJsonObject(text: string): string | null {
   return null
 }
 
-async function extractWithGroq(url: string, signals: string): Promise<ImportedProductData> {
-  const apiKey = process.env.GROQ_API_KEY
-  if (!apiKey) {
-    throw new Error('GROQ_API_KEY não configurado no .env do projeto.')
-  }
-
-  const prompt = `Você recebe metadados extraídos da página de um produto (${url}) e deve devolver APENAS um JSON válido (sem markdown, sem comentários) no formato:
+function buildExtractionPrompt(url: string, signals: string): string {
+  return `Você recebe metadados extraídos da página de um produto (${url}) e deve devolver APENAS um JSON válido (sem markdown, sem comentários) no formato:
 {
   "name": string,
   "shortDescription": string (até 120 caracteres, curta e vendedora),
@@ -142,44 +138,9 @@ async function extractWithGroq(url: string, signals: string): Promise<ImportedPr
 
 Metadados da página:
 ${signals}`
+}
 
-  const requestBody = JSON.stringify({
-    model: GROQ_MODEL,
-    messages: [{ role: 'user', content: prompt }],
-    response_format: { type: 'json_object' },
-    temperature: 0.2,
-  })
-
-  let response: Response | undefined
-  let errText = ''
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT_MS)
-    try {
-      response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
-        body: requestBody,
-        signal: controller.signal,
-      })
-    } finally {
-      clearTimeout(timeout)
-    }
-    if (response.ok) break
-    errText = await response.text()
-    // 429/503 = limite de taxa ou modelo sobrecarregado (comum no tier gratuito); tenta de novo com espera curta.
-    if ((response.status !== 429 && response.status !== 503) || attempt === 2) break
-    await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)))
-  }
-
-  if (!response || !response.ok) {
-    throw new Error(`Falha ao consultar a IA (${response?.status}): ${errText.slice(0, 200)}`)
-  }
-
-  const result = (await response.json()) as {
-    choices?: Array<{ message?: { content?: string } }>
-  }
-  const text = result.choices?.[0]?.message?.content ?? ''
+function parseExtractionResponse(text: string, url: string): ImportedProductData {
   const jsonText = extractFirstJsonObject(text)
   if (!jsonText) {
     throw new Error('A IA não retornou um JSON reconhecível.')
@@ -199,6 +160,90 @@ ${signals}`
     platform: detectPlatform(url),
     tags: Array.isArray(parsed.tags) ? parsed.tags : [],
     specs: Array.isArray(parsed.specs) ? parsed.specs : [],
+  }
+}
+
+/** Faz uma chamada com retry curto em 429/503 (limite de taxa ou modelo sobrecarregado — comum em tiers gratuitos). */
+async function fetchWithRetry(url: string, init: RequestInit): Promise<Response> {
+  let response: Response | undefined
+  let errText = ''
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), AI_TIMEOUT_MS)
+    try {
+      response = await fetch(url, { ...init, signal: controller.signal })
+    } finally {
+      clearTimeout(timeout)
+    }
+    if (response.ok) return response
+    errText = await response.text()
+    if ((response.status !== 429 && response.status !== 503) || attempt === 2) break
+    await new Promise((resolve) => setTimeout(resolve, 1500 * (attempt + 1)))
+  }
+  throw new Error(`Falha ao consultar a IA (${response?.status}): ${errText.slice(0, 200)}`)
+}
+
+async function extractWithGroq(url: string, signals: string): Promise<ImportedProductData> {
+  const apiKey = process.env.GROQ_API_KEY
+  if (!apiKey) {
+    throw new Error('GROQ_API_KEY não configurado no .env do projeto.')
+  }
+
+  const response = await fetchWithRetry('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages: [{ role: 'user', content: buildExtractionPrompt(url, signals) }],
+      response_format: { type: 'json_object' },
+      temperature: 0.2,
+    }),
+  })
+
+  const result = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>
+  }
+  return parseExtractionResponse(result.choices?.[0]?.message?.content ?? '', url)
+}
+
+/** Plano B do Groq (usado quando ele falha/trava) — mesmo prompt, via Gemini (Google AI Studio, tier gratuito). */
+async function extractWithGemini(url: string, signals: string): Promise<ImportedProductData> {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY não configurado no .env do projeto.')
+  }
+
+  const response = await fetchWithRetry(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: buildExtractionPrompt(url, signals) }] }],
+        generationConfig: { temperature: 0.2, responseMimeType: 'application/json' },
+      }),
+    },
+  )
+
+  const result = (await response.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>
+  }
+  const text = result.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+  return parseExtractionResponse(text, url)
+}
+
+async function extractProductData(url: string, signals: string): Promise<ImportedProductData> {
+  try {
+    return await extractWithGroq(url, signals)
+  } catch (groqError) {
+    if (!process.env.GEMINI_API_KEY) throw groqError
+    try {
+      return await extractWithGemini(url, signals)
+    } catch (geminiError) {
+      const groqMessage = groqError instanceof Error ? groqError.message : String(groqError)
+      const geminiMessage = geminiError instanceof Error ? geminiError.message : String(geminiError)
+      throw new Error(`Groq falhou (${groqMessage}) e o fallback Gemini também falhou (${geminiMessage}).`)
+    }
   }
 }
 
@@ -232,7 +277,7 @@ export const adminImportProductFromUrl = createServerFn({ method: 'POST' })
       )
     }
 
-    return extractWithGroq(url.toString(), signals)
+    return extractProductData(url.toString(), signals)
   })
 
 /**
@@ -254,5 +299,5 @@ export const adminImportProductFromText = createServerFn({ method: 'POST' })
       throw new Error('Cole um texto mais completo (nome, preço, descrição do produto).')
     }
 
-    return extractWithGroq(url.toString(), text.slice(0, MAX_PASTED_TEXT_CHARS))
+    return extractProductData(url.toString(), text.slice(0, MAX_PASTED_TEXT_CHARS))
   })
