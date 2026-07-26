@@ -5,7 +5,7 @@ import { Input } from '#/components/ui/input'
 import { FilterBar } from '#/components/shared/FilterBar'
 import { SortSelect } from '#/components/shared/SortSelect'
 import { ProductGrid } from '#/components/product/ProductGrid'
-import { getProductsByCategory } from '#/data/products'
+import { getOfferProducts, getProductsByCategory } from '#/data/products'
 import type { ProductCategory } from '#/data/products'
 import { CATEGORY_META } from '#/data/departments'
 import type { CategorySearch } from '#/lib/search-params'
@@ -23,7 +23,12 @@ export function CategoryPage({
 }) {
   const navigate = useNavigate()
   const meta = CATEGORY_META[category]
-  const products = useMemo(() => getProductsByCategory(category), [category])
+  const products = useMemo(
+    // "Ofertas" é um recorte transversal por desconto (offer === true), não uma categoria própria
+    // onde produtos "moram" — as demais categorias continuam filtrando por `category`.
+    () => (category === 'ofertas' ? getOfferProducts() : getProductsByCategory(category)),
+    [category],
+  )
   const availableTypes = useMemo(
     () => Array.from(new Set(products.map((product) => product.type))),
     [products],
