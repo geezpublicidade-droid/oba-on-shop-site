@@ -1,4 +1,4 @@
-import { HeadContent, Outlet, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
+import { HeadContent, Outlet, Scripts, createRootRoute, redirect, useRouterState } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import appCss from '../styles.css?url'
 import logo from '#/assets/logo.png'
@@ -6,6 +6,7 @@ import { Header } from '#/components/layout/Header'
 import { Footer } from '#/components/layout/Footer'
 import { setProducts } from '#/data/products'
 import { getLiveProducts } from '#/server/admin'
+import { getWwwRedirectTarget } from '#/server/www-redirect'
 import { SITE_URL, buildOrganizationJsonLd, buildWebsiteJsonLd } from '#/lib/seo'
 
 const SITE_TITLE = 'Oba On Shop | Achados, Ofertas e Soluções Digitais'
@@ -14,6 +15,10 @@ const SITE_DESCRIPTION =
 
 export const Route = createRootRoute({
   beforeLoad: async () => {
+    const redirectTarget = await getWwwRedirectTarget()
+    if (redirectTarget) {
+      throw redirect({ href: redirectTarget, statusCode: 308 })
+    }
     setProducts(await getLiveProducts())
   },
   head: () => ({
